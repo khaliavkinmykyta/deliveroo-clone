@@ -13,6 +13,13 @@ import {
   ShoppingBagIcon,
   ChevronLeftIcon,
 } from "react-native-heroicons/outline";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addToBasket,
+  removeFromBasket,
+  selectBasketItems,
+  selectBasketItemsWithId,
+} from "../features/basketSlice";
 
 const FoodScreen = () => {
   const {
@@ -25,6 +32,22 @@ const FoodScreen = () => {
       headerShown: false,
     });
   }, []);
+  const dispatch = useDispatch();
+  const items = useSelector(selectBasketItems);
+  const itemsWithId = useSelector((state) =>
+    selectBasketItemsWithId(state, id)
+  );
+
+  const addItemToBasket = () => {
+    dispatch(addToBasket({ id, imgUrl, nameFood, descFood, price }));
+  };
+
+  const removeItemFromBasket = () => {
+
+    if (!items.length > 0) return;
+    dispatch(removeFromBasket({id}));
+  };
+
   return (
     <SafeAreaView className="bg-white p-2">
       <View className="bg-white flex-row justify-between items-center px-2">
@@ -40,12 +63,10 @@ const FoodScreen = () => {
         </View>
 
         <Text className="text-xl font-bold text-black">Details</Text>
-        <View className="bg-[#fe6c44] opacity-30 rounded-md p-2">
+        <View className="bg-[#ffebe5] rounded-md p-2">
           <ShoppingBagIcon color={"black"} className="z-50" />
-          <View className='absolute top-1 right-1 rounded-md bg-[#000000] px-1 '>
-            <Text className=" text-white font-bold">
-              0
-            </Text>
+          <View className="absolute top-1 right-1 rounded-md bg-[#000000] px-1 ">
+            <Text className=" text-white font-bold">{items.length}</Text>
           </View>
         </View>
       </View>
@@ -61,23 +82,27 @@ const FoodScreen = () => {
           </View>
           <Text className="text-2xl  font-bold">Hamburger</Text>
           <Text className="text-gray-600 pt-4">
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit.
+            1Lorem ipsum dolor, sit amet consectetur adipisicing elit.
             Voluptatibus sint molestiae minus quo fugiat reprehenderit non
             earum, nesciunt blanditiis minima aspernatur ducimus, tempore hic
             similique dolore ad autem culpa eveniet?
           </Text>
           <View className="flex-row mt-10 space-x-2">
-            <TouchableOpacity className="bg-gray-200  rounded-xl p-2 w-1/2 m-auto flex-row justify-around ">
-              <Text className="text-black  font-bold text-lg text-center">
-                -
-              </Text>
+            <View className="bg-gray-200  rounded-xl p-2 w-1/2 m-auto flex-row justify-around ">
+              <TouchableOpacity onPress={removeItemFromBasket}>
+                <Text className="text-black  font-bold text-lg text-center">
+                  -
+                </Text>
+              </TouchableOpacity>
               <Text className="text-black  font-bold text-lg text-center">
                 Add
               </Text>
-              <Text className="text-bkacj  font-bold text-lg text-center">
-                +
-              </Text>
-            </TouchableOpacity>
+              <TouchableOpacity onPress={addItemToBasket}>
+                <Text className="text-bkacj  font-bold text-lg text-center">
+                  +
+                </Text>
+              </TouchableOpacity>
+            </View>
             <TouchableOpacity className="bg-[#fe6c44] rounded-xl p-2 w-1/2 m-auto">
               <Text className="text-white  font-bold text-lg text-center">
                 Buy now $3,49
