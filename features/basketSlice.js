@@ -17,7 +17,7 @@ export const basketSlice = createSlice({
       if (index > 0) {
         newBasket.splice(index, 1);
       } else {
-        console.log("We dont have this id: " + index);
+        console.log("We don't have this id: " + index);
       }
 
       state.items = newBasket;

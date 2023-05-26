@@ -4,12 +4,6 @@ import { useRoute } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
-  Bars3Icon,
-  AdjustmentsVerticalIcon,
-  MagnifyingGlassIcon,
-  ChevronDownIcon,
-  ArrowUturnLeftIcon,
-  ShoppingCartIcon,
   ShoppingBagIcon,
   ChevronLeftIcon,
 } from "react-native-heroicons/outline";
@@ -19,19 +13,22 @@ import {
   removeFromBasket,
   selectBasketItems,
   selectBasketItemsWithId,
-} from "../features/basketSlice";
+} from "../../features/basketSlice";
 
 const FoodScreen = () => {
+  //import root props
   const {
     params: { id, imgUrl, nameFood, descFood, price },
   } = useRoute();
 
+  //clear header
   const navigation = useNavigation();
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: false,
     });
   }, []);
+  
   const dispatch = useDispatch();
   const items = useSelector(selectBasketItems);
   const itemsWithId = useSelector((state) =>
@@ -43,15 +40,15 @@ const FoodScreen = () => {
   };
 
   const removeItemFromBasket = () => {
-
     if (!items.length > 0) return;
-    dispatch(removeFromBasket({id}));
+    dispatch(removeFromBasket({ id }));
   };
 
   return (
     <SafeAreaView className="bg-white p-2">
       <View className="bg-white flex-row justify-between items-center px-2">
-        <View
+        <TouchableOpacity
+          onPress={navigation.goBack}
           className=" border-[#cecfd2] p-1"
           style={{
             borderColor: "#cecfd2",
@@ -59,8 +56,8 @@ const FoodScreen = () => {
             borderRadius: "10%",
           }}
         >
-          <ChevronLeftIcon color="#cecfd2" onPress={navigation.goBack} />
-        </View>
+          <ChevronLeftIcon color="#cecfd2" />
+        </TouchableOpacity>
 
         <Text className="text-xl font-bold text-black">Details</Text>
         <View className="bg-[#ffebe5] rounded-md p-2">
