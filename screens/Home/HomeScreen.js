@@ -1,4 +1,4 @@
-import { View, Text, Image, TextInput, ScrollView } from "react-native";
+import { View, Text, Image, TextInput, ScrollView, TouchableOpacity } from "react-native";
 import React, { useLayoutEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -22,7 +22,15 @@ const HomeScreen = () => {
 
   return (
     <SafeAreaView className="bg-white p-2  ">
-
+      <TouchableOpacity onPress={() => navigation.navigate('Auth')}>
+        <Text>GO LOG</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('Welcome')}>
+        <Text>GO WELCOME</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
+        <Text>GO Sign In</Text>
+      </TouchableOpacity>
       {/* HEADER HOME SCREEN */}
 
       <View className="bg-white flex-row justify-between items-center px-2">

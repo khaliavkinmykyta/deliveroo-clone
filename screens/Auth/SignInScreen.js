@@ -1,14 +1,19 @@
-import { View, Text, Image, TextInput, Button, Switch } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TextInput,
+  Button,
+  Switch,
+  TouchableOpacity,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import React, { useLayoutEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-} from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase";
 
-const AuthScreen = () => {
+const SignInScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -26,32 +31,20 @@ const AuthScreen = () => {
       });
   };
 
-  const handleSignUp = () => {
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // Signed in
-        const user = userCredential.user;
-        navigation.navigate("Home");
-        // ...
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // ..
-      });
-  };
-
+  //Save me toggle switch
   const [isEnabled, setIsEnabled] = useState(true);
-
   const toggleSwitch = () => {
     setIsEnabled((previousState) => !previousState);
   };
+
+  //clear header
   const navigation = useNavigation();
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: false,
     });
   }, []);
+
   return (
     <SafeAreaView className="m-4 ">
       <View className="flex-row justify-center items-center space-x-3">
@@ -69,28 +62,29 @@ const AuthScreen = () => {
         <Text className="text-gray-600 ">Welcome Back, you've been missed</Text>
       </View>
 
-      <View className="space-y-5 mt-20">
-        <TextInput
-          value={email}
-          onChangeText={(text) => setEmail(text)}
-          className="bg-gray-200 h-12 rounded-xl p-4"
-          placeholder="your email"
-          keyboardType="email-address"
-        />
-        <Text
-          for="password"
-          className="block text-sm font-semibold text-gray-800"
-        >
-          Password
-        </Text>
-        <TextInput
-          value={password}
-          onChangeText={(text) => setPassword(text)}
-          className="bg-gray-200 h-12 rounded-xl p-4"
-          placeholder="your password"
-          keyboardType="default"
-          secureTextEntry={true}
-        />
+      <View className="space-y-4 mt-20">
+        <View>
+          <Text className="block text-sm text-gray-500 mb-1">Login</Text>
+          <TextInput
+            value={email}
+            onChangeText={(text) => setEmail(text)}
+            className="bg-gray-200 h-12 rounded-xl p-4"
+            placeholder="your email"
+            keyboardType="email-address"
+          />
+        </View>
+
+        <View>
+          <Text className="block text-sm text-gray-500 mb-1">Password</Text>
+          <TextInput
+            value={password}
+            onChangeText={(text) => setPassword(text)}
+            className="bg-gray-200 h-12 rounded-xl p-4"
+            placeholder="your password"
+            keyboardType="default"
+            secureTextEntry={true}
+          />
+        </View>
       </View>
       <View className="flex-row justify-between items-center mt-4">
         <View className="flex-row items-center space-x-1">
@@ -110,22 +104,26 @@ const AuthScreen = () => {
 
         <Text className="text-gray-600 ">Forgot Password?</Text>
       </View>
-      <View className="m-auto">
-        <Button
-          onPress={handleSignIn}
-          className="bg-orange-400 text-black"
-          title="Sign In"
-        />
-        <Button
-          onPress={handleSignUp}
-          className="bg-orange-400 text-black"
-          title="Register"
-        />
 
-        <Text>Don't have account? Sign up!</Text>
+      {/* BUTTON FOR SIGN IN */}
+      <View className="mx-auto mt-8  w-full">
+        <TouchableOpacity
+          className="bg-[#fe6c44] rounded-xl h-12"
+          onPress={handleSignIn}
+        >
+          <Text className="m-auto text-white font-bold text-lg">Sign In</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* BUTTON FOR SIGN UP */}
+      <View className="mt-2 mx-auto">
+        <Text className="text-gray-500  ">
+          Don't have account?
+          <Text className="text-[#fe6c44] font-bold" onPress={() => navigation.navigate('SignOn')}> Sign up!</Text>
+        </Text>
       </View>
     </SafeAreaView>
   );
 };
 
-export default AuthScreen;
+export default SignInScreen;
