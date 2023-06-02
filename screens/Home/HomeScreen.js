@@ -17,6 +17,7 @@ import {
 } from "react-native-heroicons/outline";
 import MenuList from "../../components/MenuList";
 import FeaturedRow from "../../components/FeaturedRow";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 // Create clear header
 const HomeScreen = () => {
@@ -27,20 +28,22 @@ const HomeScreen = () => {
     });
   }, []);
 
+  const auth = getAuth();
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // User is signed in, see docs for a list of available properties
+      // https://firebase.google.com/docs/reference/js/auth.user
+      const uid = user.uid;
+      // console.log(uid)
+      // ...
+    } else {
+      // User is signed out
+      // ...
+      console.log("User is signed out");
+    }
+  });
   return (
     <SafeAreaView className="bg-white p-2  ">
-      <TouchableOpacity onPress={() => navigation.navigate("Auth")}>
-        <Text>GO LOG</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate("Welcome")}>
-        <Text>GO WELCOME</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate("SignIn")}>
-        <Text>GO Sign In</Text>
-      </TouchableOpacity>
-
-      {/* HEADER HOME SCREEN */}
-
       <View className="bg-white flex-row justify-between items-center px-2">
         <Bars3Icon
           color="#cecfd2"

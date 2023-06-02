@@ -11,34 +11,43 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import React, { useLayoutEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "../../firebase";
 
 const SignOnScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
 
   const handleSignUp = () => {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        // Signed in
+        // Получаем пользователя
         const user = userCredential.user;
-        navigation.navigate("Home");
-        // ...
+
+        // Обновляем профиль пользователя
+        updateProfile(user, {
+          displayName: displayName,
+          phoneNumber: phoneNumber,
+        })
+          .then(() => {
+            console.log("Профиль пользователя успешно обновлен" + phoneNumber);
+          })
+          .catch((error) => {
+            console.log("Ошибка при обновлении профиля пользователя:", error);
+          });
+
+        navigation.navigate("UserLogged");
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
-        // Alert.alert("Alert", "Email already exists", [
-        //     { text: errorCode, onPress: () => console.log("OK Pressed") },
-        //   ]);
-        if (errorCode === 'auth/email-already-in-use') {
-            Alert.alert("Alert", "Email already exists", [
-                { text: "OK", onPress: () => console.log("OK Pressed") },
-              ]);
+        if (errorCode === "auth/email-already-in-use") {
+          Alert.alert("Alert", "Email already exists", [
+            { text: "OK", onPress: () => console.log("OK Pressed") },
+          ]);
         }
-       
-        // ..
       });
   };
 
@@ -73,9 +82,30 @@ const SignOnScreen = () => {
         <Text className="text-gray-600 ">Create an account to continue</Text>
       </View>
 
-      <View className="space-y-4 mt-20">
+      <View className="space-y-4 mt-10">
         <View>
-          <Text className="block text-sm text-gray-500 mb-1">Login</Text>
+          <Text className="block text-sm text-gray-500 mb-1">Mobile</Text>
+          <TextInput
+            value={phoneNumber}
+            onChangeText={(text) => setPhoneNumber(text)}
+            className="bg-gray-200 h-12 rounded-xl p-4"
+            placeholder="your mobile"
+            keyboardType="phone-pad"
+          />
+        </View>
+        <View>
+          <Text className="block text-sm text-gray-500 mb-1">Username</Text>
+          <TextInput
+            value={displayName}
+            onChangeText={(text) => setDisplayName(text)}
+            className="bg-gray-200 h-12 rounded-xl p-4"
+            placeholder="your username"
+            keyboardType="default"
+          />
+        </View>
+
+        <View>
+          <Text className="block text-sm text-gray-500 mb-1">Email</Text>
           <TextInput
             value={email}
             onChangeText={(text) => setEmail(text)}
@@ -129,13 +159,12 @@ const SignOnScreen = () => {
       {/* BUTTON FOR SIGN IN */}
       <View className="mt-2 mx-auto">
         <Text className="text-gray-500  ">
-          Already have an account?
+          Already have an account?{" "}
           <Text
             className="text-[#fe6c44] font-bold"
             onPress={() => navigation.navigate("SignIn")}
           >
-            {" "}
-            Sign up!
+            Login!
           </Text>
         </Text>
       </View>

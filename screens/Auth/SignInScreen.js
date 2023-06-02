@@ -3,7 +3,6 @@ import {
   Text,
   Image,
   TextInput,
-  Button,
   Switch,
   TouchableOpacity,
 } from "react-native";
@@ -14,6 +13,14 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase";
 
 const SignInScreen = () => {
+  const navigation = useNavigation()
+  useLayoutEffect(() => {
+      navigation.setOptions({
+        headerShown: false,
+      });
+    }, []);
+
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -22,7 +29,8 @@ const SignInScreen = () => {
       .then((userCredential) => {
         // Signed in
         const user = userCredential.user;
-        navigation.navigate("Home");
+        navigation.navigate("UserLogged");
+        console.log(user);
         // ...
       })
       .catch((error) => {
@@ -38,12 +46,11 @@ const SignInScreen = () => {
   };
 
   //clear header
-  const navigation = useNavigation();
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerShown: false,
-    });
-  }, []);
+  // useLayoutEffect(() => {
+  //   navigation.setOptions({
+  //     headerShown: false,
+  //   });
+  // }, []);
 
   return (
     <SafeAreaView className="m-4 ">

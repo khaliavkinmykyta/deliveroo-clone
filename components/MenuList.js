@@ -20,7 +20,6 @@ const MenuList = () => {
           categories.push(category);
         });
 
-        console.log("Список категорий:", categories);
         return setCat(categories);
       } catch (error) {
         console.error("Ошибка при получении категорий:", error);
