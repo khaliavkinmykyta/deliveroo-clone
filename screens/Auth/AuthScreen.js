@@ -54,6 +54,7 @@ const AuthScreen = () => {
   }, []);
   return (
     <SafeAreaView className="m-4 ">
+      
       <View className="flex-row justify-center items-center space-x-3">
         <Image
           className="h-14 w-14 rounded-xl"

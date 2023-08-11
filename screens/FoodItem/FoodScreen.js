@@ -18,7 +18,9 @@ import {
 const FoodScreen = () => {
   //import root props
   const {
-    params: { id, imgUrl, nameFood, descFood, price },
+    // params: { id, imgUrl, nameFood, descFood, price },
+        params: { item, id },
+
   } = useRoute();
 
   //clear header
@@ -73,16 +75,13 @@ const FoodScreen = () => {
             <Image
               className="h-52 w-full rounded-2xl"
               source={{
-                uri: "https://www.realsimple.com/thmb/z3cQCYXTyDQS9ddsqqlTVE8fnpc=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/real-simple-mushroom-black-bean-burgers-recipe-0c365277d4294e6db2daa3353d6ff605.jpg",
+                uri: item.img,
               }}
             />
           </View>
-          <Text className="text-2xl  font-bold">Hamburger</Text>
+          <Text className="text-2xl  font-bold">{item.name}</Text>
           <Text className="text-gray-600 pt-4">
-            1Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-            Voluptatibus sint molestiae minus quo fugiat reprehenderit non
-            earum, nesciunt blanditiis minima aspernatur ducimus, tempore hic
-            similique dolore ad autem culpa eveniet?
+          {item.description}
           </Text>
           <View className="flex-row mt-10 space-x-2">
             <View className="bg-gray-200  rounded-xl p-2 w-1/2 m-auto flex-row justify-around ">
@@ -102,7 +101,7 @@ const FoodScreen = () => {
             </View>
             <TouchableOpacity className="bg-[#fe6c44] rounded-xl p-2 w-1/2 m-auto">
               <Text className="text-white  font-bold text-lg text-center">
-                Buy now $3,49
+                Buy now $ {item.price}
               </Text>
             </TouchableOpacity>
           </View>

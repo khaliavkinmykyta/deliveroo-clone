@@ -18,7 +18,7 @@ const FoodFeatured = ({ id, imgUrl, nameFood, descFood, price }) => {
       className="bg-gray-100 rounded-xl  w-36 space-y-1    mr-3 p-2 justify-center items-center"
     >
       <Image
-        className="h-28 w-28 mb-6"
+        className="h-28 w-28 mb-6 rounded-xl"
         source={{
           uri: imgUrl,
         }}

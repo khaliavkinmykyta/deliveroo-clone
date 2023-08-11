@@ -5,6 +5,8 @@ import {
   TextInput,
   Switch,
   TouchableOpacity,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import React, { useLayoutEffect, useState } from "react";
@@ -13,13 +15,12 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase";
 
 const SignInScreen = () => {
-  const navigation = useNavigation()
+  const navigation = useNavigation();
   useLayoutEffect(() => {
-      navigation.setOptions({
-        headerShown: false,
-      });
-    }, []);
-
+    navigation.setOptions({
+      headerShown: false,
+    });
+  }, []);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,7 +30,6 @@ const SignInScreen = () => {
       .then((userCredential) => {
         // Signed in
         const user = userCredential.user;
-        navigation.navigate("UserLogged");
         console.log(user);
         // ...
       })
@@ -45,6 +45,9 @@ const SignInScreen = () => {
     setIsEnabled((previousState) => !previousState);
   };
 
+  const handleKeyboardDismiss = () => {
+    Keyboard.dismiss(); // Скрывает клавиатуру
+  };
   //clear header
   // useLayoutEffect(() => {
   //   navigation.setOptions({
@@ -69,29 +72,33 @@ const SignInScreen = () => {
         <Text className="text-gray-600 ">Welcome Back, you've been missed</Text>
       </View>
 
-      <View className="space-y-4 mt-20">
-        <View>
-          <Text className="block text-sm text-gray-500 mb-1">Login</Text>
-          <TextInput
-            value={email}
-            onChangeText={(text) => setEmail(text)}
-            className="bg-gray-200 h-12 rounded-xl p-4"
-            placeholder="your email"
-            keyboardType="email-address"
-          />
-        </View>
+      <View className=" mt-20">
+        <TouchableWithoutFeedback onPress={handleKeyboardDismiss}>
+          <View>
+            <Text className="block text-sm text-gray-500 mb-2">Login</Text>
+            <TextInput
+              value={email}
+              onChangeText={(text) => setEmail(text)}
+              className="bg-gray-200 h-12 rounded-xl p-4"
+              placeholder="your email"
+              keyboardType="email-address"
+            />
+          </View>
+        </TouchableWithoutFeedback>
 
-        <View>
-          <Text className="block text-sm text-gray-500 mb-1">Password</Text>
-          <TextInput
-            value={password}
-            onChangeText={(text) => setPassword(text)}
-            className="bg-gray-200 h-12 rounded-xl p-4"
-            placeholder="your password"
-            keyboardType="default"
-            secureTextEntry={true}
-          />
-        </View>
+        <TouchableWithoutFeedback onPress={handleKeyboardDismiss} >
+          <View >
+            <Text className="block text-sm text-gray-500 mb-2 mt-4">Password</Text>
+            <TextInput
+              value={password}
+              onChangeText={(text) => setPassword(text)}
+              className="bg-gray-200 h-12 rounded-xl p-4"
+              placeholder="your password"
+              keyboardType="default"
+              secureTextEntry={true}
+            />
+          </View>
+        </TouchableWithoutFeedback>
       </View>
       <View className="flex-row justify-between items-center mt-4">
         <View className="flex-row items-center space-x-1">
@@ -126,7 +133,13 @@ const SignInScreen = () => {
       <View className="mt-2 mx-auto">
         <Text className="text-gray-500  ">
           Don't have account?
-          <Text className="text-[#fe6c44] font-bold" onPress={() => navigation.navigate('SignOn')}> Sign up!</Text>
+          <Text
+            className="text-[#fe6c44] font-bold"
+            onPress={() => navigation.navigate("SignOn")}
+          >
+            {" "}
+            Sign up!
+          </Text>
         </Text>
       </View>
     </SafeAreaView>

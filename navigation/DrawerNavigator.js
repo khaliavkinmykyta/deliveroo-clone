@@ -16,6 +16,8 @@ import {
 } from "react-native-heroicons/outline";
 import { Ionicons } from "@expo/vector-icons";
 import WalletScreen from "../screens/Wallet/WalletScreen";
+import { AuthDataContext } from "../hooks/AuthWrapper";
+import { auth } from "../firebase";
 
 const DEFAULT_ICON_COLOR = "white";
 const DEFAULT_ICON_SIZE = 24;
@@ -24,6 +26,9 @@ const Drawer = createDrawerNavigator();
 
 const DrawerNavigator = () => {
   const navigation = useNavigation();
+
+
+
   return (
     <Drawer.Navigator
       initialRouteName="HomeStack"
@@ -50,6 +55,7 @@ const DrawerNavigator = () => {
         name="HomeStack"
         component={HomeStackNavigator} // Используем созданный стек навигации
         options={{
+          headerShown: false,
           drawerIcon: ({ focused, size }) => (
             // Иконка для главного экрана
             <Ionicons
@@ -133,11 +139,31 @@ const DrawerNavigator = () => {
         ),
       }}
     /> */}
+    
     </Drawer.Navigator>
   );
 };
 
 function CustomDrawerContent(props) {
+  const { login, logout, user } = AuthDataContext();
+  console.log('drawer');
+  console.log(user.email)
+
+  const navigation = useNavigation();
+  const handleLogout = () => {
+    auth
+      .signOut()
+      .then(() => {
+        // Sign-out successful.
+        console.log("Sign-out successful.");
+        
+      })
+      .catch((error) => {
+        // An error happened.
+        console.error("Error during sign-out:", error);
+      });
+  }
+
   return (
     <DrawerContentScrollView
       {...props}
@@ -166,7 +192,7 @@ function CustomDrawerContent(props) {
             className="h-10 w-10 rounded-xl"
           />
           <View>
-            <Text className="text-white font-bold">your personal email</Text>
+            <Text className="text-white font-bold">{user.email}</Text>
             <Text className="text-white">View your profile</Text>
           </View>
         </View>
@@ -175,7 +201,7 @@ function CustomDrawerContent(props) {
       <DrawerItem
         label="Log out"
         labelStyle={{ color: "white" }}
-        onPress={() => Linking.openURL("https://mywebsite.com/help")}
+        onPress={handleLogout}
         icon={({ color, size }) => (
           <ArrowRightOnRectangleIcon
             color="white"

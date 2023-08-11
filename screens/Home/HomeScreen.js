@@ -4,58 +4,43 @@ import {
   Image,
   TextInput,
   ScrollView,
-  TouchableOpacity,
+  TouchableWithoutFeedback,
 } from "react-native";
-import React, { useLayoutEffect } from "react";
+import React from "react";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
-  Bars3Icon,
   AdjustmentsVerticalIcon,
   MagnifyingGlassIcon,
   ChevronDownIcon,
+  Bars3CenterLeftIcon,
 } from "react-native-heroicons/outline";
-import MenuList from "../../components/MenuList";
-import FeaturedRow from "../../components/FeaturedRow";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import CategoriesList from "../../components/CategoriesList";
+import PopularFoodList from "./PopularFood/PopularFoodList";
+import RecommendFoodList from "./RecommendFood/RecommendFoodList.jsx";
 
-// Create clear header
 const HomeScreen = () => {
   const navigation = useNavigation();
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerShown: false,
-    });
-  }, []);
 
-  const auth = getAuth();
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      // User is signed in, see docs for a list of available properties
-      // https://firebase.google.com/docs/reference/js/auth.user
-      const uid = user.uid;
-      // console.log(uid)
-      // ...
-    } else {
-      // User is signed out
-      // ...
-      console.log("User is signed out");
-    }
-  });
+  const openDrawer = () => {
+    navigation.openDrawer();
+  };
   return (
-    <SafeAreaView className="bg-white p-2  ">
-      <View className="bg-white flex-row justify-between items-center px-2">
-        <Bars3Icon
-          color="#cecfd2"
-          className=" border-black"
-          size={35}
-          style={{
-            borderColor: "#cecfd2",
-            borderWidth: 2,
-            borderRadius: "10%",
-          }}
-        />
+    <SafeAreaView className="bg-white p-3 ">
+      <ScrollView >
+      {/* CUSTOM HEADER Drawer + Name + Logo */}
+      <View className="flex-row justify-between items-center px-2">
+        {/* Drawer Icon */}
+        <TouchableWithoutFeedback onPress={openDrawer}>
+          <View className="p-1 border border-zinc-500 rounded-xl">
+            <Bars3CenterLeftIcon color="#71717a" size={26} />
+          </View>
+        </TouchableWithoutFeedback>
+
+        {/* Name Screen */}
         <Text className="text-xl font-bold text-black">Home</Text>
+
+        {/* Logo */}
         <Image
           source={{
             uri: "https://cdn.dribbble.com/users/5462907/screenshots/11960844/5.png",
@@ -65,7 +50,6 @@ const HomeScreen = () => {
       </View>
 
       {/* SEARCH */}
-
       <View className="flex-row items-center space-x-2 bg-gray-100 rounded-xl px-2 mx-2 my-4 ">
         <View className="flex-row flex-1 space-x-2 p-2">
           <MagnifyingGlassIcon color="black" />
@@ -76,7 +60,9 @@ const HomeScreen = () => {
         </View>
         <AdjustmentsVerticalIcon color="black" />
       </View>
-      <View className="px-2">
+
+      {/* GEO ADDRESS LABEL */}
+      <View className="mx-2">
         <Text className="text-lg font-bold text-[#fe6c44]  ">Delivery to:</Text>
         <View className="flex-row items-center space-x-1">
           <Text className="font-bold">st. Koneva 21, app. 70</Text>
@@ -84,33 +70,18 @@ const HomeScreen = () => {
         </View>
       </View>
 
-      {/* BODY */}
+      
+        {/* CATEGORIES LIST */}
+        <CategoriesList />
 
-      <ScrollView>
-        {/* Categories */}
+        {/* POPULAR FOOD LIST*/}
+        <PopularFoodList />
 
-        <MenuList />
+        {/* RECOMMENDED FOOD LIST */}
+        <RecommendFoodList />
 
-        {/* Featured Row */}
-
-        <FeaturedRow
-          title="Popular Food"
-          description="Paid placement from out partners"
-          featuredCategory={"featured"}
-          id={"123"}
-        />
-        <FeaturedRow
-          title="Recommended"
-          description="Paid placement from out partners"
-          featuredCategory={"featured"}
-          id={"123"}
-        />
-        <FeaturedRow
-          title="Featured"
-          description="Paid placement from out partners"
-          featuredCategory={"featured"}
-          id={"123"}
-        />
+        {/* PROMOTION FOOD LIST */}
+        <RecommendFoodList />
       </ScrollView>
     </SafeAreaView>
   );

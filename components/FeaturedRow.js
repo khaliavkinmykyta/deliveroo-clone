@@ -2,7 +2,7 @@ import { View, Text, ScrollView } from "react-native";
 import React from "react";
 import FoodFeatured from "./FoodFeatured";
 
-const FeaturedRow = ({ id, title, description, featuredCategory }) => {
+const FeaturedRow = ({ id, title, description, featuredCategory, data }, ) => {
   return (
     <View>
       <View className="flex-row justify-between items-center mt-4 px-2 ">
@@ -19,34 +19,19 @@ const FeaturedRow = ({ id, title, description, featuredCategory }) => {
         }}
       >
         {/* Food Banners */}
-        <FoodFeatured
-          id="111"
-          imgUrl="https://s.06452.com.ua/section/catalogproducts/upload/images/catalog/products/000/006/499/403720_5ff73003e7ac8.png"
-          nameFood="Test Set"
-          descFood="big burger, potato fry, coca-cola 0.5"
-          price="$3,49"
-        />
-         <FoodFeatured
-          id="111"
-          imgUrl="https://sud.ua/uploads/news/2022/09/19/c681fe772cdbd69bc830d142e7d3e9357ce98d0b.png"
-          nameFood="Test Set"
-          descFood="big burger, potato fry, coca-cola 0.5"
-          price="$3,49"
-        />
-         <FoodFeatured
-          id="111"
-          imgUrl="https://s.06452.com.ua/section/catalogproducts/upload/images/catalog/products/000/006/499/403720_5ff73003e7ac8.png"
-          nameFood="Test Set"
-          descFood="big burger, potato fry, coca-cola 0.5"
-          price="$3,49"
-        />
-         <FoodFeatured
-          id="111"
-          imgUrl="https://s.06452.com.ua/section/catalogproducts/upload/images/catalog/products/000/006/499/403720_5ff73003e7ac8.png"
-          nameFood="Test Set"
-          descFood="big burger, potato fry, coca-cola 0.5"
-          price="$3,49"
-        />
+        {Object.keys(data).map((key) => {
+          console.log(key);
+          return (
+            <FoodFeatured
+              key={key} // Добавлен ключ (key) для каждого элемента списка
+              id={key}
+              imgUrl={data[key].img}
+              nameFood={data[key].name}
+              descFood={data[key].desc}
+              price={data[key].price}
+            />
+          );
+        })}
       </ScrollView>
     </View>
   );

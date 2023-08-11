@@ -2,18 +2,15 @@ import { View, Text, Image, Button, TouchableOpacity } from "react-native";
 import React from "react";
 import { useNavigation } from "@react-navigation/native";
 
-const FoodRow = ({ id, imgUrl, nameFood, descFood, price }) => {
+const FoodRow = ({  item, categoryId, test }) => {
   const navigation = useNavigation();
 
   return (
     <TouchableOpacity
       onPress={() => {
         navigation.navigate("FoodScreen", {
-          id,
-          imgUrl,
-          nameFood,
-          descFood,
-          price,
+        item: item,
+        id: item.id,
         });
       }}
       className="p-4"
@@ -23,19 +20,18 @@ const FoodRow = ({ id, imgUrl, nameFood, descFood, price }) => {
           <Image
             className="w-14 h-14"
             source={{
-              uri: "https://imgpng.ru/d/kfc_food_PNG2.png",
+              uri: item.img,
             }}
           />
         </View>
         <View className="flex-1 px-2">
-          <Text className="font-bold">Name of product</Text>
+          <Text className="font-bold">{item.name}</Text>
           <Text className="text-gray-600 ">
-            Lorem ipsum dolosdasduiasdasdasdasdasda! Nesciunt harum minus
-            tempora, at quae ipsum reprehenderit m?
+           {item.description}
           </Text>
         </View>
         <View className="justify-between">
-          <Text>333,33</Text>
+          <Text>{item.price}3</Text>
           <Button
             title="+"
             onPress={() => {
