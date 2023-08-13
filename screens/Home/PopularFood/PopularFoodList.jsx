@@ -15,25 +15,22 @@ const PopularFoodList = () => {
     navigation.navigate("PopularScreenFood");
   };
 
-  // FETCH POPULAR FOOD 
+  // FETCH POPULAR FOOD
   useEffect(() => {
-    const fetchPopularFoodItems = async () => {
-      try {
-        const popularFoodRef = collection(db, "popularFoodItem");
-        const querySnapshot = await getDocs(popularFoodRef);
+    const popularFoodRef = collection(db, "popularFoodItem");
 
+    getDocs(popularFoodRef)
+      .then((querySnapshot) => {
+        console.log("Popular food list USE EFFECT")
         const popularFoodData = [];
         querySnapshot.forEach((doc) => {
           popularFoodData.push({ id: doc.id, ...doc.data() });
         });
-
         setPopularFoodItems(popularFoodData);
-      } catch (error) {
+      })
+      .catch((error) => {
         console.error("Error fetching popular food items:", error);
-      }
-    };
-
-    fetchPopularFoodItems();
+      });
   }, []);
 
   return (
@@ -49,17 +46,15 @@ const PopularFoodList = () => {
       </View>
 
       {/* HEADER TAB DESCRIPTION */}
-      <Text className="text-xs text-gray-500">
-        Top-10 dishes for this week
-      </Text>
+      <Text className="text-xs text-gray-500">Top-10 dishes for this week</Text>
 
-{/* POPULAR FOOD LIST */}
+      {/* POPULAR FOOD LIST */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{
           paddingHorizontal: 0,
-          paddingTop: 10
+          paddingTop: 10,
         }}
       >
         {popularFoodItems.map((item) => (

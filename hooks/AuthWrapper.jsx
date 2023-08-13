@@ -28,6 +28,9 @@ import Loading from "../components/Loading";
         if (user) {
           setUser({
             email: user.email,
+            displayName: user.displayName,
+            phoneNumber: user.phoneNumber,
+
             isAuthenticated: true,
           });
         } else {

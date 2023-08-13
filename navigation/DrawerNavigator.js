@@ -14,10 +14,13 @@ import {
   ArrowRightOnRectangleIcon,
   XMarkIcon,
 } from "react-native-heroicons/outline";
+import {GiftIcon} from 'react-native-heroicons/solid'
 import { Ionicons } from "@expo/vector-icons";
 import WalletScreen from "../screens/Wallet/WalletScreen";
 import { AuthDataContext } from "../hooks/AuthWrapper";
 import { auth } from "../firebase";
+import SettingScreen from "../screens/Setting/SettingScreen";
+import CouponsScreen from "../screens/Coupons/CouponsScreen";
 
 const DEFAULT_ICON_COLOR = "white";
 const DEFAULT_ICON_SIZE = 24;
@@ -111,25 +114,29 @@ const DrawerNavigator = () => {
         ),
       }}
     /> */}
-      {/* <Drawer.Screen
+      <Drawer.Screen
       name="Coupons"
       component={CouponsScreen}
       options={{
+        headerShown: false,
         drawerIcon: ({ focused, size }) => (
-          <Ionicons
-            name="archive"
+          <GiftIcon
+            name="gift"
             color={DEFAULT_ICON_COLOR}
             size={DEFAULT_ICON_SIZE}
             style={{ marginRight: -20 }}
           />
         ),
       }}
-    /> */}
-      {/* <Drawer.Screen
+    />
+    
+      <Drawer.Screen
       name="Setting"
       component={SettingScreen}
       options={{
+        headerShown: false,
         drawerIcon: ({ focused, size }) => (
+          
           <Ionicons
             name="cog"
             color={DEFAULT_ICON_COLOR}
@@ -138,7 +145,7 @@ const DrawerNavigator = () => {
           />
         ),
       }}
-    /> */}
+    />
     
     </Drawer.Navigator>
   );

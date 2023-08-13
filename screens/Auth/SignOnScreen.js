@@ -3,7 +3,6 @@ import {
   Text,
   Image,
   TextInput,
-  Button,
   Switch,
   TouchableOpacity,
   ScrollView,
@@ -12,13 +11,9 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import React, { useLayoutEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  GoogleAuthProvider,
-  createUserWithEmailAndPassword,
-  signInWithPopup,
-  updateProfile,
-} from "firebase/auth";
-import { auth } from "../../firebase";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { auth, db } from "../../firebase";
+import { addDoc, collection } from "firebase/firestore";
 
 const SignOnScreen = () => {
   const [email, setEmail] = useState("");
@@ -29,10 +24,8 @@ const SignOnScreen = () => {
   const handleSignUp = () => {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        // Получаем пользователя
         const user = userCredential.user;
-
-        // Обновляем профиль пользователя
+  
         updateProfile(user, {
           displayName: displayName,
           phoneNumber: phoneNumber,
@@ -43,8 +36,20 @@ const SignOnScreen = () => {
           .catch((error) => {
             console.log("Ошибка при обновлении профиля пользователя:", error);
           });
-
-        navigation.navigate("UserLogged");
+  
+        addDoc(collection(db, "clients"), {
+          displayName: displayName,
+          email: email,
+          token: user.uid,
+          id: user.uid,
+          phone: phoneNumber,
+        })
+          .then(() => {
+            console.log("Пользователь успешно зарегистрирован и добавлен в коллекцию");
+          })
+          .catch((error) => {
+            console.log("Ошибка при добавлении пользователя в коллекцию:", error);
+          });
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -53,9 +58,12 @@ const SignOnScreen = () => {
           Alert.alert("Alert", "Email already exists", [
             { text: "OK", onPress: () => console.log("OK Pressed") },
           ]);
+        } else {
+          console.log("Ошибка при регистрации:", errorMessage);
         }
       });
   };
+  
 
   //Save me toggle switch
   const [isEnabled, setIsEnabled] = useState(true);
@@ -74,7 +82,6 @@ const SignOnScreen = () => {
   return (
     <SafeAreaView className="m-4 flex-1">
       <ScrollView>
-  
         <View className="flex-row justify-center items-center space-x-3">
           <Image
             className="h-14 w-14 rounded-xl"

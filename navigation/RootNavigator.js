@@ -9,15 +9,17 @@ import AuthNavigator from "./AuthNavigator";
 const RootNavigator = () => {
   const { user } = AuthDataContext();
   const [logged, setLogged] = useState(false);
-  console.log("test");
 
   useEffect(() => {
     if (user.isAuthenticated) {
       console.log("User authenticated:", user);
+      console.log("Cколько раз вызывается, норм? - рут навигатор - тру юзео:", user);
+
       setLogged(true);
     } else {
       setLogged(false);
       console.log("User is signed out");
+      console.log("Cколько раз вызывается, норм?  - рут навигатор - тру фолс:");
     }
   }, [user.isAuthenticated]);
   console.log(user);

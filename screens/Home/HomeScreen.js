@@ -26,7 +26,7 @@ const HomeScreen = () => {
     navigation.openDrawer();
   };
   return (
-    <SafeAreaView className="bg-white p-3 ">
+    <SafeAreaView className="bg-white p-2 flex-1">
       <ScrollView >
       {/* CUSTOM HEADER Drawer + Name + Logo */}
       <View className="flex-row justify-between items-center px-2">
@@ -78,10 +78,10 @@ const HomeScreen = () => {
         <PopularFoodList />
 
         {/* RECOMMENDED FOOD LIST */}
-        <RecommendFoodList />
+        {/* <RecommendFoodList /> */}
 
         {/* PROMOTION FOOD LIST */}
-        <RecommendFoodList />
+        {/* <RecommendFoodList /> */}
       </ScrollView>
     </SafeAreaView>
   );

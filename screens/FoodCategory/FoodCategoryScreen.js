@@ -9,14 +9,17 @@ import {
   ShoppingBagIcon,
 } from "react-native-heroicons/outline";
 import { useSelector } from "react-redux";
-import { selectBasketItems } from "../../features/basketSlice";
+import { selectBasketItems, selectBasketTotalQuantity } from "../../features/basketSlice";
 import { collection, doc, getDocs, onSnapshot } from "firebase/firestore";
 import { db } from "../../firebase";
+import BasketIcon from "../../components/Basket/BasketIcon";
 
 const FoodCategoryScreen = () => {
   const navigation = useNavigation();
   const [foodItems, setFoodItems] = React.useState([]);
   const route = useRoute();
+  const totalQuantity = useSelector(selectBasketTotalQuantity);
+
   const { imgUrl, name } = route.params;
 
   useLayoutEffect(() => {
@@ -30,59 +33,43 @@ const FoodCategoryScreen = () => {
     const categoryDocRef = doc(db, "categories", categoryId);
     const foodItemsCollectionRef = collection(categoryDocRef, "foodItem");
 
-    // Подписываемся на изменения в подколлекции foodItem
-    const unsubscribe = onSnapshot(foodItemsCollectionRef, (snapshot) => {
-      const foodItemsData = [];
-
-      snapshot.forEach((foodItemDoc) => {
-        const foodItemData = foodItemDoc.data();
-        const foodItem = {
-          id: foodItemData.id,
-          name: foodItemData.name,
-          docName: foodItemData.docName,
-          price: foodItemData.price,
-          img: foodItemData.img,
-          description: foodItemData.description,
-        };
-        foodItemsData.push(foodItem);
+  
+    getDocs(foodItemsCollectionRef)
+      .then((querySnapshot) => {
+        const foodItemsData = [];
+  
+        querySnapshot.forEach((foodItemDoc) => {
+          const foodItemData = foodItemDoc.data();
+          const foodItem = {
+            id: foodItemData.id,
+            name: foodItemData.name,
+            docName: foodItemData.docName,
+            price: foodItemData.price,
+            img: foodItemData.img,
+            description: foodItemData.description,
+          };
+          foodItemsData.push(foodItem);
+        });
+        console.log('FoodCatScren - maybe this is')
+        setFoodItems(foodItemsData);
+      })
+      .catch((error) => {
+        console.error("Error fetching food items:", error);
       });
+  }, []);
+  
 
-      // Проверяем, если коллекция пуста, устанавливаем empty в true
-    
 
-      setFoodItems(foodItemsData);
-    });
 
-    // Удаляем подписку при очистке компонента
-    return () => {
-      unsubscribe();
-    };
-  }, [foodItems]);
 
-  const items = useSelector(selectBasketItems);
 
   return (
-    <SafeAreaView className="">
-      <View className="flex-row justify-between items-center px-2">
-        <TouchableOpacity
-          onPress={navigation.goBack}
-          className=" border-[#cecfd2] p-1"
-          style={{
-            borderColor: "#cecfd2",
-            borderWidth: 1,
-            borderRadius: "10%",
-          }}
-        >
-          <ChevronLeftIcon color="#cecfd2" />
-        </TouchableOpacity>
-
+    <SafeAreaView className="bg-red-300 ">
+      {/* HEADER */}
+      <View className="flex-row justify-between items-center px-2 ">
+       
         <Text className="text-xl font-bold text-black">Details</Text>
-        <View className="bg-[#ffebe5] rounded-md p-2">
-          <ShoppingBagIcon color={"black"} className="z-50" />
-          <View className="absolute top-1 right-1 rounded-md bg-[#000000] px-1 ">
-            <Text className=" text-white font-bold">{items.length}</Text>
-          </View>
-        </View>
+    <BasketIcon/>
       </View>
       <CategoriesList />
       <Text className="font-bold text-2xl my-2 text-center">{name}</Text>
@@ -97,19 +84,7 @@ const FoodCategoryScreen = () => {
         />
       ))}
 
-      {/* <FoodRow
-        title="Popular Food"
-        description="Paid placement from out partners"
-        featuredCategory={"featured"}
-        id={"123"}
-      />
-      <FoodRow
-        title="Popular Food"
-        description="Paid placement from out partners"
-        featuredCategory={"featured"}
-        id={"123"}
-      /> */}
-      {/* <FoodRow /> */}
+    
     </SafeAreaView>
   );
 };

@@ -11,70 +11,60 @@ const CategoriesList = () => {
   const [activeCategory, setActiveCategory] = React.useState(null);
   const [categories, setCategories] = React.useState([]);
 
-
   useEffect(() => {
-    // Получение данных из коллекции "categories"
-    async function fetchCategories() {
-      try {
-        const categoriesRef = collection(db, "categories");
-        const snapshot = await getDocs(categoriesRef);
+    const categoriesRef = collection(db, "categories");
+    getDocs(categoriesRef)
+      .then((snapshot) => {
         const categories = [];
         snapshot.forEach((doc) => {
           const category = doc.data();
           categories.push(category);
         });
-
-        return setCat(categories);
-      } catch (error) {
+        setCat(categories);
+      })
+      .catch((error) => {
         console.error("Ошибка при получении категорий:", error);
-        return [];
-      }
-    }
-
-    // Пример использования функции для получения категорий
-    fetchCategories();
-
-  
+      });
   }, []);
 
-  const handleSetCategory = async (categoryId) => {
-    setActiveCategory(categoryId);
-  
-    const categoryDocRef = doc(db, "categories", categoryId);
-    const foodItemsCollectionRef = collection(categoryDocRef, "foodItem");
-  
-    // Подписываемся на изменения в подколлекции foodItem
-    const unsubscribe = onSnapshot(foodItemsCollectionRef, (snapshot) => {
-      const foodItemsData = [];
-  
-      snapshot.forEach((foodItemDoc) => {
-        const foodItemData = foodItemDoc.data();
-        const foodItem = {
-          id: foodItemData.id,
-          name: foodItemData.name,
-          docName: foodItemData.docName,
-          price: foodItemData.price,
-          img: foodItemData.img,
-          description: foodItemData.description,
-        };
-        foodItemsData.push(foodItem);
-      });
-  
-      // Проверяем, если коллекция пуста, устанавливаем empty в true
-      if (foodItemsData.length === 0) {
-        setEmpty(true);
-      } else {
-        setEmpty(false);
-      }
-  
-      setFoodItems(foodItemsData);
-    });
-  
-    // Удаляем подписку при очистке компонента
-    return () => {
-      unsubscribe();
-    };
-  };
+  // const handleSetCategory = async (categoryId) => {
+  //   setActiveCategory(categoryId);
+
+  //   const categoryDocRef = doc(db, "categories", categoryId);
+  //   const foodItemsCollectionRef = collection(categoryDocRef, "foodItem");
+
+  //   // Подписываемся на изменения в подколлекции foodItem
+  //   const unsubscribe = onSnapshot(foodItemsCollectionRef, (snapshot) => {
+  //     const foodItemsData = [];
+
+  //     snapshot.forEach((foodItemDoc) => {
+  //       const foodItemData = foodItemDoc.data();
+  //       const foodItem = {
+  //         id: foodItemData.id,
+  //         name: foodItemData.name,
+  //         docName: foodItemData.docName,
+  //         price: foodItemData.price,
+  //         img: foodItemData.img,
+  //         description: foodItemData.description,
+  //       };
+  //       foodItemsData.push(foodItem);
+  //     });
+
+  //     // Проверяем, если коллекция пуста, устанавливаем empty в true
+  //     if (foodItemsData.length === 0) {
+  //       setEmpty(true);
+  //     } else {
+  //       setEmpty(false);
+  //     }
+
+  //     setFoodItems(foodItemsData);
+  //   });
+
+  //   // Удаляем подписку при очистке компонента
+  //   return () => {
+  //     unsubscribe();
+  //   };
+  // };
   return (
     // HORIZONTAL Scroll View Setting
     <ScrollView
@@ -87,10 +77,8 @@ const CategoriesList = () => {
     >
       {/* Mapping our categories to render each item in MenuCard */}
       {cat?.map((item) => (
-        <MenuCard imgUrl={item.img} name={item.name}  key={item.id}/>
+        <MenuCard imgUrl={item.img} name={item.name} key={item.id} />
       ))}
-
-   
     </ScrollView>
   );
 };

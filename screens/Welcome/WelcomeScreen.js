@@ -20,14 +20,14 @@ const WelcomeScreen = () => {
   const [lastPage, setLastPage] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const welcomePageRef = collection(db, "welcomePage");
+    const welcomePageRef = collection(db, "welcomePage");
 
-      try {
-        const querySnapshot = await getDocs(welcomePageRef);
+    getDocs(welcomePageRef)
+      .then((querySnapshot) => {
         const welcomePageData = [];
 
         querySnapshot.forEach((doc) => {
+          console.log('Welcome Page USE EFFECT')
           const data = doc.data();
           welcomePageData.push(data);
         });
@@ -35,12 +35,10 @@ const WelcomeScreen = () => {
         welcomePageData.sort((a, b) => a.index - b.index);
         setWelcomePage(welcomePageData);
         setLoading(true);
-      } catch (error) {
+      })
+      .catch((error) => {
         console.error("Error fetching welcomePage data:", error);
-      }
-    };
-
-    fetchData();
+      });
   }, []);
 
   //clear header
@@ -83,7 +81,7 @@ const WelcomeScreen = () => {
         {/* SLIDE IMG */}
         <View className="justify-center items-center h-56  w-full">
           <Image
-          className="transition-all duration-75  "
+            className="transition-all duration-75  "
             style={{
               height: "100%", // Ваш желаемый размер
               width: "100%", // Чтобы изображение занимало 100% ширины родительского контейнера

@@ -7,6 +7,7 @@ import FoodCategoryScreen from "../screens/FoodCategory/FoodCategoryScreen";
 import FoodScreen from "../screens/FoodItem/FoodScreen";
 import SignInScreen from "../screens/Auth/SignInScreen";
 import PopularScreenFood from "../screens/Home/PopularFood/PopularScreenFood";
+import BasketScreen from "../screens/Basket/BasketScreen";
 
 
 const HomeStack = createNativeStackNavigator();
@@ -18,6 +19,7 @@ const HomeStackNavigator = () => {
       <HomeStack.Screen name="FoodCategory" component={FoodCategoryScreen}/>
       <HomeStack.Screen name="FoodScreen" component={FoodScreen}/> 
       <HomeStack.Screen name="PopularScreenFood" component={PopularScreenFood }/>
+      <HomeStack.Screen name="BasketScreen" component={BasketScreen }/>
 
 
     </HomeStack.Navigator>

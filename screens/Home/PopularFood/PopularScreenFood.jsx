@@ -25,32 +25,34 @@ const PopularScreenFood = () => {
   useEffect(() => {
     const foodItemsCollectionRef = collection(db, "popularFoodItem");
 
-    // Подписываемся на изменения в подколлекции foodItem
-    const unsubscribe = onSnapshot(foodItemsCollectionRef, (snapshot) => {
-      const foodItemsData = [];
+    // Получаем данные один раз при монтировании компонента
+    getDocs(foodItemsCollectionRef)
+      .then((querySnapshot) => {
+        const foodItemsData = [];
+        console.log("Popularscreen  food  USE EFFECT")
 
-      snapshot.forEach((foodItemDoc) => {
-        const foodItemData = foodItemDoc.data();
-        const foodItem = {
-          id: foodItemData.id,
-          name: foodItemData.name,
-          docName: foodItemData.docName,
-          price: foodItemData.price,
-          img: foodItemData.img,
-          description: foodItemData.description,
-        };
-        foodItemsData.push(foodItem);
+        querySnapshot.forEach((foodItemDoc) => {
+          const foodItemData = foodItemDoc.data();
+          const foodItem = {
+            id: foodItemData.id,
+            name: foodItemData.name,
+            docName: foodItemData.docName,
+            price: foodItemData.price,
+            img: foodItemData.img,
+            description: foodItemData.description,
+          };
+          foodItemsData.push(foodItem);
+        });
+
+        // Проверяем, если коллекция пуста, устанавливаем empty в true
+        console.log(foodItemsData);
+        setFoodItems(foodItemsData);
+      })
+      .catch((error) => {
+        console.error("Error fetching food items:", error);
       });
 
-      // Проверяем, если коллекция пуста, устанавливаем empty в true
-      console.log(foodItemsData);
-      setFoodItems(foodItemsData);
-    });
-
-    // Удаляем подписку при очистке компонента
-    return () => {
-      unsubscribe();
-    };
+    // Заметьте, что мы убрали подписку и return из этого блока
   }, []);
 
   return (
