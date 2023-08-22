@@ -2,7 +2,7 @@ import { Text, Image, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { useNavigation } from "@react-navigation/native";
 
-const PopularFoodItem = ({ item }) => {
+const RecommendFoodItem = ({ item }) => {
     const navigation = useNavigation();
   return (
     <TouchableOpacity
@@ -33,4 +33,4 @@ const PopularFoodItem = ({ item }) => {
   );
 };
 
-export default PopularFoodItem;
+export default RecommendFoodItem;

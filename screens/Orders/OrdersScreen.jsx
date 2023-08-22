@@ -1,12 +1,12 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 
-const TrackOrderScreen = () => {
+const OrdersScreen = () => {
   return (
     <View>
-      <Text>TrackOrderScreen</Text>
+      <Text>OrdersScreen</Text>
     </View>
   )
 }
 
-export default TrackOrderScreen
+export default OrdersScreen

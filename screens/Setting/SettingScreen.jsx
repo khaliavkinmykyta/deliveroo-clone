@@ -7,6 +7,7 @@ import {
   ScrollView,
   TouchableWithoutFeedback,
   Image,
+  Modal,
 } from "react-native";
 import React, { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
@@ -20,29 +21,43 @@ import {
   DevicePhoneMobileIcon,
   CreditCardIcon,
   MegaphoneIcon,
-  UserIcon
+  UserIcon,
 } from "react-native-heroicons/outline";
 import { AuthDataContext } from "../../hooks/AuthWrapper";
+import { useForm, Controller } from "react-hook-form";
+import ChangePassword from "./ChangePassword";
+import { auth } from "../../firebase";
 
 const SettingScreen = () => {
-  const [name, setName] = useState(""); // Состояние для имени пользователя
   const navigation = useNavigation();
+  const userTrue = auth.currentUser;
+  if (userTrue !== null) {
+    console.log("userTrue");
 
-  const { login, logout, user } = AuthDataContext();
+    console.log(userTrue.displayName);
+  }
+
+  const goChangePassword = () => {
+    navigation.navigate("ChangePassword");
+  };
+  const [name, setName] = useState(""); // Состояние для имени пользователя
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
+  const { user } = AuthDataContext();
+  console.log(user);
 
   const openDrawer = () => {
     navigation.openDrawer();
   };
 
-  const handleSave = () => {
-    // Здесь можно добавить логику сохранения нового значения имени
-    // Например, отправить запрос на сервер или обновить состояние в контексте
-
-    console.log("New name:", name);
-  };
   return (
-    <View className='bg-white '>
-      <SafeAreaView className="bg-white p-3 ">
+    <View className="bg-white">
+      <SafeAreaView className="bg-white p-3">
         <ScrollView className="mx-4">
           {/* CUSTOM HEADER Drawer + Name + Logo */}
           <View className="flex-row justify-between items-center">
@@ -66,16 +81,21 @@ const SettingScreen = () => {
           </View>
           <View className="gap-5 mt-3">
             {/* Your name */}
-            <View className="flex-row justify-between items-center">
+            <TouchableOpacity
+              onPress={() => navigation.navigate("DisplayName")}
+            >
+              <View className="flex-row justify-between items-center">
                 <View className="flex-row items-center gap-2">
                   <UserIcon color="#71717a" size={26} />
                   <Text className="font-semibold">{user.displayName}</Text>
                 </View>
-               
               </View>
+            </TouchableOpacity>
 
             {/* Your email */}
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("EmailScreen")}
+            >
               <View className="flex-row justify-between items-center">
                 <View className="flex-row items-center gap-2">
                   <EnvelopeIcon color="#71717a" size={26} />
@@ -88,7 +108,7 @@ const SettingScreen = () => {
             </TouchableOpacity>
 
             {/* Change password */}
-            <TouchableOpacity>
+            <TouchableOpacity onPress={goChangePassword}>
               <View className="flex-row justify-between items-center">
                 <View className="flex-row items-center gap-2">
                   <LockClosedIcon color="#71717a" size={26} />
@@ -101,7 +121,9 @@ const SettingScreen = () => {
             </TouchableOpacity>
 
             {/* Change phone number */}
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("MobileScreen")}
+            >
               <View className="flex-row justify-between items-center">
                 <View className="flex-row items-center gap-2">
                   <DevicePhoneMobileIcon color="#71717a" size={26} />
@@ -118,21 +140,20 @@ const SettingScreen = () => {
               <View className="flex-row justify-between items-center">
                 <View className="flex-row items-center gap-2">
                   <CreditCardIcon color="#71717a" size={26} />
-                  <Text className="font-semibold">Change payment methods </Text>
+                  <Text className="font-semibold">Change payment methods</Text>
                 </View>
                 <View className="">
                   <ChevronRightIcon color="#71717a" size={26} />
                 </View>
               </View>
             </TouchableOpacity>
-          
 
             {/* Manage my privacy */}
             <TouchableOpacity>
               <View className="flex-row justify-between items-center">
                 <View className="flex-row items-center gap-2">
                   <MegaphoneIcon color="#71717a" size={26} />
-                  <Text className="font-semibold">Manage my privacy </Text>
+                  <Text className="font-semibold">Manage my privacy</Text>
                 </View>
                 <View className="">
                   <ChevronRightIcon color="#71717a" size={26} />

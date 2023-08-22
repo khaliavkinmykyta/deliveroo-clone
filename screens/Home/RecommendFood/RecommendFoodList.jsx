@@ -18,6 +18,7 @@ const RecommendFoodList = () => {
         querySnapshot.forEach((doc) => {
           recommendFoodData.push({ id: doc.id, ...doc.data() });
         });
+        console.log("REC FOOD LIST UE")
 
         setRecommendFoodItems(recommendFoodData);
       })

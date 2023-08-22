@@ -12,15 +12,28 @@ import { DrawerActions, useNavigation } from "@react-navigation/native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import {
   ArrowRightOnRectangleIcon,
+  ChatBubbleOvalLeftIcon,
   XMarkIcon,
 } from "react-native-heroicons/outline";
-import {GiftIcon} from 'react-native-heroicons/solid'
+import {
+  ChatBubbleOvalLeftEllipsisIcon,
+  GiftIcon,
+  BellAlertIcon,
+  MapPinIcon,
+  HomeIcon,
+  QueueListIcon,
+} from "react-native-heroicons/solid";
 import { Ionicons } from "@expo/vector-icons";
 import WalletScreen from "../screens/Wallet/WalletScreen";
 import { AuthDataContext } from "../hooks/AuthWrapper";
 import { auth } from "../firebase";
 import SettingScreen from "../screens/Setting/SettingScreen";
 import CouponsScreen from "../screens/Coupons/CouponsScreen";
+import SupportScreen from "../screens/Support/SupportScreen";
+import NotificationsScreen from "../screens/Notifications/NotificationsScreen";
+import TrackOrderScreen from "../screens/Track/TrackOrderScreen";
+import SettingNavigator from "./SettingNavigator";
+import OrdersScreen from "../screens/Orders/OrdersScreen";
 
 const DEFAULT_ICON_COLOR = "white";
 const DEFAULT_ICON_SIZE = 24;
@@ -29,8 +42,6 @@ const Drawer = createDrawerNavigator();
 
 const DrawerNavigator = () => {
   const navigation = useNavigation();
-
-
 
   return (
     <Drawer.Navigator
@@ -55,14 +66,14 @@ const DrawerNavigator = () => {
       drawerContent={(props) => <CustomDrawerContent {...props} />}
     >
       <Drawer.Screen
-        name="HomeStack"
+        name="Main"
         component={HomeStackNavigator} // Используем созданный стек навигации
         options={{
           headerShown: false,
           drawerIcon: ({ focused, size }) => (
             // Иконка для главного экрана
-            <Ionicons
-              name="home"
+            <HomeIcon
+              name="homeicon"
               color={DEFAULT_ICON_COLOR}
               size={DEFAULT_ICON_SIZE}
               style={{ marginRight: -20 }}
@@ -72,10 +83,86 @@ const DrawerNavigator = () => {
       />
 
       <Drawer.Screen
+        name="Track Order"
+        component={TrackOrderScreen}
+        options={{
+          drawerIcon: ({ focused, size }) => (
+            <MapPinIcon
+              name="bicycle"
+              color={DEFAULT_ICON_COLOR}
+              size={DEFAULT_ICON_SIZE}
+              style={{ marginRight: -20 }}
+            />
+          ),
+        }}
+      />
+
+      <Drawer.Screen
+        name="Your Orders"
+        component={OrdersScreen}
+        options={{
+          drawerIcon: ({ focused, size }) => (
+            <QueueListIcon
+              name="oreders"
+              color={DEFAULT_ICON_COLOR}
+              size={DEFAULT_ICON_SIZE}
+              style={{ marginRight: -20 }}
+            />
+          ),
+        }}
+      />
+
+      <Drawer.Screen
+        name="Notifications"
+        component={NotificationsScreen}
+        options={{
+          headerShown: false,
+          drawerIcon: ({ focused, size }) => (
+            <BellAlertIcon
+              name="notifications"
+              color={DEFAULT_ICON_COLOR}
+              size={DEFAULT_ICON_SIZE}
+              style={{ marginRight: -20 }}
+            />
+          ),
+        }}
+      />
+
+      <Drawer.Screen
+        name="Coupons"
+        component={CouponsScreen}
+        options={{
+          headerShown: false,
+          drawerIcon: ({ focused, size }) => (
+            <GiftIcon
+              name="gift"
+              color={DEFAULT_ICON_COLOR}
+              size={DEFAULT_ICON_SIZE}
+              style={{ marginRight: -20 }}
+            />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Support"
+        component={SupportScreen}
+        options={{
+          headerShown: false,
+
+          drawerIcon: ({ focused, size }) => (
+            <ChatBubbleOvalLeftEllipsisIcon
+              name="support"
+              color={DEFAULT_ICON_COLOR}
+              size={DEFAULT_ICON_SIZE}
+              style={{ marginRight: -20 }}
+            />
+          ),
+        }}
+      />
+      <Drawer.Screen
         name="Wallet"
         component={WalletScreen}
         options={{
-
           drawerIcon: ({ focused, size }) => (
             <Ionicons
               name="wallet"
@@ -86,75 +173,29 @@ const DrawerNavigator = () => {
           ),
         }}
       />
-      {/* <Drawer.Screen
-      name="Notifications"
-      component={NotificationsScreen}
-      options={{
-        drawerIcon: ({ focused, size }) => (
-          <Ionicons
-            name="notifications"
-            color={DEFAULT_ICON_COLOR}
-            size={DEFAULT_ICON_SIZE}
-            style={{ marginRight: -20 }}
-          />
-        ),
-      }}
-    /> */}
-      {/* <Drawer.Screen
-      name="Track Order"
-      component={TrackOrderScreen}
-      options={{
-        drawerIcon: ({ focused, size }) => (
-          <Ionicons
-            name="bicycle"
-            color={DEFAULT_ICON_COLOR}
-            size={DEFAULT_ICON_SIZE}
-            style={{ marginRight: -20 }}
-          />
-        ),
-      }}
-    /> */}
       <Drawer.Screen
-      name="Coupons"
-      component={CouponsScreen}
-      options={{
-        headerShown: false,
-        drawerIcon: ({ focused, size }) => (
-          <GiftIcon
-            name="gift"
-            color={DEFAULT_ICON_COLOR}
-            size={DEFAULT_ICON_SIZE}
-            style={{ marginRight: -20 }}
-          />
-        ),
-      }}
-    />
-    
-      <Drawer.Screen
-      name="Setting"
-      component={SettingScreen}
-      options={{
-        headerShown: false,
-        drawerIcon: ({ focused, size }) => (
-          
-          <Ionicons
-            name="cog"
-            color={DEFAULT_ICON_COLOR}
-            size={DEFAULT_ICON_SIZE}
-            style={{ marginRight: -20 }}
-          />
-        ),
-      }}
-    />
-    
+        name="Setting"
+        component={SettingNavigator}
+        options={{
+          headerShown: false,
+          drawerIcon: ({ focused, size }) => (
+            <Ionicons
+              name="cog"
+              color={DEFAULT_ICON_COLOR}
+              size={DEFAULT_ICON_SIZE}
+              style={{ marginRight: -20 }}
+            />
+          ),
+        }}
+      />
     </Drawer.Navigator>
   );
 };
 
 function CustomDrawerContent(props) {
   const { login, logout, user } = AuthDataContext();
-  console.log('drawer');
-  console.log(user.email)
+  console.log("drawer");
+  console.log(user.email);
 
   const navigation = useNavigation();
   const handleLogout = () => {
@@ -163,13 +204,12 @@ function CustomDrawerContent(props) {
       .then(() => {
         // Sign-out successful.
         console.log("Sign-out successful.");
-        
       })
       .catch((error) => {
         // An error happened.
         console.error("Error during sign-out:", error);
       });
-  }
+  };
 
   return (
     <DrawerContentScrollView
@@ -225,7 +265,5 @@ function CustomDrawerContent(props) {
     </DrawerContentScrollView>
   );
 }
-
-
 
 export default DrawerNavigator;

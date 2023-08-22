@@ -1,5 +1,5 @@
 import { View, Text, Image, ScrollView, TouchableOpacity } from "react-native";
-import React, { useLayoutEffect } from "react";
+import React, { useLayoutEffect, useState } from "react";
 import { useRoute } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -17,8 +17,20 @@ import {
 } from "../../features/basketSlice";
 import BasketIcon from "../../components/Basket/BasketIcon";
 import BackButton from "../../components/BackButton";
+import ImageModal from "./ImageModal";
 
 const FoodScreen = () => {
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [modalImageUrl, setModalImageUrl] = useState(null);
+  const openImageModal = (imageUrl) => {
+    setModalImageUrl(imageUrl);
+    setShowImageModal(true);
+  };
+
+  const closeImageModal = () => {
+    setShowImageModal(false);
+    setModalImageUrl(null);
+  };
   //import root props
   const {
     // params: { id, imgUrl, nameFood, descFood, price },
@@ -36,6 +48,7 @@ const FoodScreen = () => {
   const dispatch = useDispatch();
   const items = useSelector(selectBasketItems);
   const totalQuantity = useSelector(selectBasketTotalQuantity);
+  const [isBuy, setIsBuy] = useState(false);
   const itemsWithId = useSelector((state) =>
     selectBasketItemsWithId(state, id)
   );
@@ -57,7 +70,7 @@ const FoodScreen = () => {
     //   console.log('length 0')
     //   return;}
 
-    dispatch(removeFromBasket(item.id));
+    dispatch(removeFromBasket(item));
 
     // if (items.length > 0) {
     //   dispatch(removeFromBasket(item.id));
@@ -66,6 +79,12 @@ const FoodScreen = () => {
     //   console.log("Basket is empty");
     // }
   };
+
+  const buyNow = () => {
+    setIsBuy(true);
+    addItemToBasket();
+
+  }
 
   return (
     <SafeAreaView className="bg-white p-2">
@@ -78,12 +97,16 @@ const FoodScreen = () => {
       <ScrollView>
         <View className="mx-2">
           <View className="my-10">
+          <TouchableOpacity onPress={() => openImageModal(item.img)}>
+
             <Image
               className="h-52 w-full rounded-2xl"
               source={{
                 uri: item.img,
               }}
             />
+                        </TouchableOpacity>
+
           </View>
           <Text className="text-2xl  font-bold">{item.name}</Text>
           <Text className="text-gray-600 pt-4">{item.description}</Text>
@@ -98,19 +121,22 @@ const FoodScreen = () => {
                 Add
               </Text>
               <TouchableOpacity onPress={addItemToBasket}>
-                <Text className="text-bkacj  font-bold text-lg text-center">
+                <Text className="text-black  font-bold text-lg text-center">
                   +
                 </Text>
               </TouchableOpacity>
             </View>
-            <TouchableOpacity className="bg-[#fe6c44] rounded-xl p-2 w-1/2 m-auto">
+            <TouchableOpacity className="bg-[#fe6c44] rounded-xl p-2 w-1/2 m-auto" onPress={buyNow}>
               <Text className="text-white  font-bold text-lg text-center">
-                Buy now $ {item.price}
+              {!isBuy ? `Buy now $${item.price}` : 'Added'}
+               
               </Text>
             </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
+      <ImageModal imageUrl={modalImageUrl} onClose={closeImageModal} />
+
     </SafeAreaView>
   );
 };

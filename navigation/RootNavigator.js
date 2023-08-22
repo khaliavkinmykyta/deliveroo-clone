@@ -5,6 +5,7 @@ import { store } from "../store";
 import DrawerNavigator from "./DrawerNavigator";
 import AuthWrapper, { AuthDataContext } from "../hooks/AuthWrapper";
 import AuthNavigator from "./AuthNavigator";
+import { auth } from "../firebase";
 
 const RootNavigator = () => {
   const { user } = AuthDataContext();
@@ -23,6 +24,8 @@ const RootNavigator = () => {
     }
   }, [user.isAuthenticated]);
   console.log(user);
+
+  
   return logged ? (
     <Provider store={store}>
       <NavigationContainer>

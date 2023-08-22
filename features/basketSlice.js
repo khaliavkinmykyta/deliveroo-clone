@@ -16,7 +16,7 @@ export const basketSlice = createSlice({
         console.log("Object with this id already exists in the array.");
 
         existingItem.quantity += 1;
-        existingItem.sumPrice += +action.payload.price;
+        existingItem.sumPrice += +action.payload.price.toFixed(2);
         console.log(existingItem.quantity, existingItem.sumPrice);
         // state.items = [...state.items, existingItem];
       } else {
@@ -30,22 +30,27 @@ export const basketSlice = createSlice({
         console.log(state.items);
       }
     },
+
+
     removeFromBasket: (state, action) => {
-      console.log(action.payload);
-      console.log("-----");
-      console.log(state.items);
-      console.log("-----");
-
-      const index = state.items.findIndex((item) => item.id === action.payload);
-      let newBasket = [...state.items];
-      if (index > 0) {
-        newBasket.splice(index, 1);
+      const existingItemIndex = state.items.findIndex(
+        (item) => item.id === action.payload.id
+      );
+    
+      if (existingItemIndex !== -1) {
+        console.log("Да, есть такой можно удалять");
+        if (state.items[existingItemIndex].quantity > 1) {
+          state.items[existingItemIndex].sumPrice -= +action.payload.price.toFixed(2);
+          state.items[existingItemIndex].quantity -= 1;
+        } else {
+          state.items.splice(existingItemIndex, 1);
+        }
       } else {
-        console.log("We don't have this id: " + index);
+        console.log("Такого нет!");
+        console.log(action.payload.id);
       }
-
-      state.items = newBasket;
-    },
+    }
+    
   },
 });
 
@@ -66,8 +71,10 @@ export const selectBasketTotalQuantity = (state) => {
 
 export const selectBasketTotal = (state) => {
   const basketItems = selectBasketItems(state);
-  return basketItems.reduce((total, item) => total + parseFloat(item.sumPrice), 0);
+  return basketItems.reduce(
+    (total, item) => total + parseFloat(item.sumPrice),
+    0
+  );
 };
-
 
 export default basketSlice.reducer;

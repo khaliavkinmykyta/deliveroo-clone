@@ -110,7 +110,7 @@ const BasketScreen = () => {
         <View className="gap-y-5 mx-5 mb-5 mt-1">
           <View className="flex-row justify-between">
             <Text>Subtotal</Text>
-            <Text className="font-bold">${total}</Text>
+            <Text className="font-bold">${total.toFixed(2)}</Text>
           </View>
           <View className="flex-row justify-between">
             <Text>Delivery</Text>
@@ -121,9 +121,9 @@ const BasketScreen = () => {
 
         <View className="flex-row justify-between m-5">
           <Text className="text-2xl font-bold">Total:</Text>
-          <Text className="text-2xl font-bold">${total+10}</Text>
+          <Text className="text-2xl font-bold">${total.toFixed(2)+10}</Text>
         </View>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('SetOrderScreen')}>
           <View className="bg-orange-500 rounded-xl m-2">
             <Text className="text-white font-bold text-xl text-center py-4 px-4">
               Place your order
