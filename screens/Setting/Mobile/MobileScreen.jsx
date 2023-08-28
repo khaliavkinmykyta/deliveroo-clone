@@ -17,17 +17,18 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
+import { AuthDataContext } from "../../../hooks/AuthWrapper";
 
 const MobileScreen = () => {
-  const [passValid, setPassValid] = useState(false);
   const navigation = useNavigation();
-  const user = auth.currentUser;
+  const { user, updateUser } = AuthDataContext();
+  const [added, setAdded] = useState(false);
+  const [error, setError] = useState(false);
 
   //SCHEMAS
   const currentMobileSchema = yup.object().shape({
     mobileNumber: yup
-      .number()
-      .typeError("Mobile number should only contain numbers")
+      .string()
       .required("Mobile number is required"),
   });
 
@@ -56,17 +57,32 @@ const MobileScreen = () => {
       if (!querySnapshot.empty) {
         const userDocRef = querySnapshot.docs[0].ref;
         await updateDoc(userDocRef, { mobile: data.mobileNumber });
+        // UPDATE CONTEXT WITH NEW ADDRESS
+        const updatedUser = {
+          ...user,
+          mobile: data.mobileNumber,
+        };
+        updateUser(updatedUser);
+        setError(false);
+
+        setAdded(true);
         console.log("Обновление успешно выполнено");
       } else {
+        setError(true);
+        setAdded(false);
+
         console.log("Документ не найден");
       }
     } catch (error) {
+      setError(true);
+      setAdded(false);
+
       console.log("Ошибка при получении или обновлении документа:", error);
     }
   };
 
   return (
-    <SafeAreaView>
+    <SafeAreaView className="flex-1 bg-white">
       {/* HEADER */}
       <View className="bg-white flex-row justify-between items-center px-2">
         {/* Drawer Icon */}
@@ -88,11 +104,12 @@ const MobileScreen = () => {
 
               {/* INPUT */}
               <TextInput
-                placeholder="your mobile number"
+                placeholder={user.mobile}
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
                 className="bg-gray-200 h-12 rounded-xl p-4"
+                onPressIn={() => setAdded(false)}
               />
 
               {/* ERROR LABEL */}
@@ -105,14 +122,32 @@ const MobileScreen = () => {
         />
 
         {/* SUBMIT ORIGINAL PASSWORD */}
-        <TouchableOpacity className="bg-[#fe6c44] text-white p-4 rounded-xl">
+        <TouchableOpacity className="bg-[#fe6c44] text-white p-4 rounded-xl"  onPress={handleSubmit(onSubmit)}>
           <Text
             className="text-white font-bold text-lg text-center"
-            onPress={handleSubmit(onSubmit)}
+           
           >
             ENTER YOUR NEW MOBILE
           </Text>
         </TouchableOpacity>
+        {added ? (
+          <View className="border border-[#fe6c44] rounded-xl mt-2">
+            <Text className="text-center text-2xl p-2 text-[#fe6c44]">
+              Added!
+            </Text>
+          </View>
+        ) : (
+          ""
+        )}
+        {error ? (
+          <View className="border border-[#fe6c44] rounded-xl mt-2">
+            <Text className="text-center text-2xl p-2 text-[#fe6c44]">
+              Error!
+            </Text>
+          </View>
+        ) : (
+          ""
+        )}
       </View>
     </SafeAreaView>
   );

@@ -12,14 +12,28 @@ import { ScrollView } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
 import { ChevronLeftIcon } from "react-native-heroicons/solid";
 import { ShoppingBagIcon } from "react-native-heroicons/outline";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
+  addToBasket,
+  removeFromBasket,
   selectBasketItems,
   selectBasketTotal,
   selectBasketTotalQuantity,
 } from "../../features/basketSlice";
 
 const BasketItem = ({ item }) => {
+  const dispatch = useDispatch();
+
+  const addItemToBasket = () => {
+    dispatch(addToBasket(item));
+    console.log(item);
+  };
+
+  const removeItemFromBasket = () => {
+    console.log(item.id);
+  
+    dispatch(removeFromBasket(item));
+  };
   return (
     <>
       {/* ITEM ROW */}
@@ -44,11 +58,17 @@ const BasketItem = ({ item }) => {
           </View>
           {/* RIGHT SIDE */}
           <View className="bg-white rounded-lg flex-row justify-between items-center px-4 py-2">
-            <Text className="text-orange-400  font-bold text-3xl">-</Text>
+            <TouchableOpacity onPress={removeItemFromBasket}>
+              <Text className="text-orange-400  font-bold text-3xl">-</Text>
+            </TouchableOpacity>
+
             <Text className="text-black  font-bold text-xl px-4">
               {item.quantity}
             </Text>
+            <TouchableOpacity onPress={addItemToBasket}>
             <Text className="text-orange-400   font-bold text-3xl">+</Text>
+            </TouchableOpacity>
+
           </View>
         </View>
       </View>
@@ -68,7 +88,7 @@ const BasketScreen = () => {
     // SAFE AREA CONTAINER
     <SafeAreaView className="bg-white flex-1 justify-between">
       {/* HEADER AND FLAT*/}
-      <View className='flex-1'>
+      <View className="flex-1">
         {/* HEADER */}
         <View className="flex-row justify-between items-center px-2">
           {/* GO BACK */}
@@ -91,7 +111,9 @@ const BasketScreen = () => {
           <View className="bg-[#ffebe5] rounded-md p-2">
             <ShoppingBagIcon color={"black"} className="z-50" />
             <View className="absolute top-1 right-1 rounded-md bg-[#000000] px-1 ">
-              <Text className=" text-white font-bold text-xs">{totalQuantity}</Text>
+              <Text className=" text-white font-bold text-xs">
+                {totalQuantity}
+              </Text>
             </View>
           </View>
         </View>
@@ -100,7 +122,7 @@ const BasketScreen = () => {
         <FlatList
           data={basketItems}
           renderItem={({ item }) => <BasketItem item={item} />}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item.docName}
         />
       </View>
       {/* <ScrollView className="px-4"> */}
@@ -121,9 +143,9 @@ const BasketScreen = () => {
 
         <View className="flex-row justify-between m-5">
           <Text className="text-2xl font-bold">Total:</Text>
-          <Text className="text-2xl font-bold">${total.toFixed(2)+10}</Text>
+          <Text className="text-2xl font-bold">${(total + 10).toFixed(2)}</Text>
         </View>
-        <TouchableOpacity onPress={() => navigation.navigate('SetOrderScreen')}>
+        <TouchableOpacity onPress={() => navigation.navigate("SetOrderScreen")}>
           <View className="bg-orange-500 rounded-xl m-2">
             <Text className="text-white font-bold text-xl text-center py-4 px-4">
               Place your order

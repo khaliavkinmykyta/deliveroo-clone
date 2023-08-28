@@ -1,55 +1,80 @@
-
-
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
-import { doc, getDoc, getDocs } from "firebase/firestore";
+import { getDocs, limit, query } from "firebase/firestore";
 import { db } from "../../../firebase";
-import { collection, addDoc } from "firebase/firestore";
-import PopularFoodItem from "../PopularFood/PopularFoodItem";
+import { collection } from "firebase/firestore";
+import { useNavigation } from "@react-navigation/native";
+import {
+  PlusCircleIcon,
+} from "react-native-heroicons/outline";
+import { v4 as uuidv4 } from 'uuid';
+import PromotionFoodItem from "./PromotionFoodItem";
+
 
 const PromotionFoodList = () => {
-  const [recommendFoodItems, setRecommendFoodItems] = useState([]);
+  const [promotionFoodItems, setPromotionFoodItems] = useState([]);
+  const navigation = useNavigation();
 
+  const goToFoodCategory = () => {
+    navigation.navigate("PromotionScreenFood");
+  };
+
+  // FETCH PROMOTION FOOD
   useEffect(() => {
-    const recommendFoodRef = collection(db, "recommendFoodItem");
+    const promotionFoodRef = collection(db, "promotionFoodItem");
 
-    getDocs(recommendFoodRef)
+    // Limit the query to 5 elements
+    const q = query(promotionFoodRef, limit(5));
+
+    getDocs(q)
       .then((querySnapshot) => {
-        console.log('RecFoodList UE')
-        const recommendFoodData = [];
+        console.log("Promo food list USE EFFECT");
+        const promotionFoodData = [];
         querySnapshot.forEach((doc) => {
-          recommendFoodData.push({ id: doc.id, ...doc.data() });
+          promotionFoodData.push({ id: doc.id, ...doc.data() });
         });
-        console.log("REC FOOD LIST UE")
-
-        setRecommendFoodItems(recommendFoodData);
+        setPromotionFoodItems(promotionFoodData);
       })
       .catch((error) => {
-        console.error("Error fetching popular food items:", error);
+        console.error("Error fetching promo food items:", error);
       });
   }, []);
 
   return (
-    <View>
-      <View className="flex-row justify-between items-center mt-4 px-2 ">
-        <Text className="font-bold text-lg">Рекомендація їжа</Text>
-        <Text className="text-[#fe6c44]">Показати усе</Text>
+    <View className="px-2">
+      {/* HEADER TAB */}
+      <View className="flex-row justify-between items-center mt-4">
+        <Text className="font-bold text-lg">Promotion Food</Text>
+        <TouchableOpacity>
+          <Text className="text-[#fe6c44]" onPress={goToFoodCategory}>
+            View all
+          </Text>
+        </TouchableOpacity>
       </View>
-      <Text className="text-xs px-2 text-gray-500">
-        Топ-10 позицій за цей тиждень
-      </Text>
+
+      {/* HEADER TAB DESCRIPTION */}
+      <Text className="text-xs text-gray-500">Top-10 dishes for this week</Text>
+
+      {/* PROMOTION FOOD LIST ON HOME SCREEN */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{
-          paddingHorizontal: 10,
+          paddingHorizontal: 0,
           paddingTop: 10,
         }}
       >
-        {/* Food Banners */}
-        {recommendFoodItems.map((item) => (
-          <PopularFoodItem key={item.id} item={item} />
+        {/* PROMOTION FOOD MAPPING */}
+        {promotionFoodItems.map((item) => (
+          <PromotionFoodItem key={uuidv4()} item={item} />
         ))}
+        {/* VIEW ALL LAST CARD */}
+        <TouchableOpacity
+          className="items-center justify-center w-28 rounded-xl"
+          onPress={goToFoodCategory}
+        >
+          <PlusCircleIcon size={40} color={"#fe6c44"} strokeWidth={1} />
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );

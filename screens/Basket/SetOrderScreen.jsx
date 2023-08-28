@@ -1,9 +1,10 @@
 import { View, Text, SafeAreaView, FlatList, ScrollView } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import {
   ChevronLeftIcon,
   InformationCircleIcon,
+  PaperClipIcon,
   PencilIcon,
   ShoppingBagIcon,
 } from "react-native-heroicons/outline";
@@ -16,14 +17,60 @@ import {
 } from "../../features/basketSlice";
 import { TextInput } from "react-native";
 import { AuthDataContext } from "../../hooks/AuthWrapper";
+import { MapPinIcon } from "react-native-heroicons/solid";
+import { db } from "../../firebase";
+import { addDoc, collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 
 const SetOrderScreen = () => {
   const navigation = useNavigation();
   const basketItems = useSelector(selectBasketItems);
   const total = useSelector(selectBasketTotal);
   const totalQuantity = useSelector(selectBasketTotalQuantity);
+  const [noticeOrder, setNoticeOrder] = useState("")
   const { user } = AuthDataContext();
 
+  const sendOrder = async () => {
+    // console.log(basketItems);
+    try {
+      const q = query(collection(db, "clients"), where("id", "==", user.id));
+      const querySnapshot = await getDocs(q);
+  
+      querySnapshot.forEach(async (userDocument) => {
+        const userDataFromFirestore = userDocument.data();
+        console.log(userDataFromFirestore);
+  
+        // Получение ссылки на документ
+        const userDocRef = doc(db, "clients", userDocument.id);
+  
+        // Подготовка данных для документа в подколлекции
+        const orderData = {
+          displayName: user.displayName,
+          mobile: user.mobile,
+          geoAddress: user.geoAddress[user.geoAddress.length - 1],
+          noticeOrder: noticeOrder,
+          total: total,
+          basketItems: basketItems,
+        };
+  
+        // Добавление документа в подколлекцию userOrders
+        const userOrdersCollectionRef = collection(userDocRef, "userOrders");
+        await addDoc(userOrdersCollectionRef, orderData);
+        console.log("Order added to userOrders subcollection");
+        navigation.navigate("SuccessOrderScreen")
+      });
+  
+      console.log("Orders sent to subcollection");
+    } catch (error) {
+      console.log("Error fetching user data:", error);
+    }
+  };
+  
+  
+  
+  
+  
+  
+    
   return (
     // SAFE AREA CONTAINER
     <SafeAreaView className="bg-white flex-1">
@@ -59,62 +106,95 @@ const SetOrderScreen = () => {
         </View>
       </View>
       {/* INFO ORDER BLOCK */}
-      <ScrollView>
-        <View className="mx-4 gap-y-3 mt-2">
+      <ScrollView className="mt-2">
+        <View className="mx-4 gap-y-3">
           {/* Your name */}
           <View className="bg-zinc-100 rounded-xl p-2 shadow-sm  shadow-zinc-500">
             <Text className="font-bold">Your name</Text>
-            <View className="flex-row mt-2 items-center">
-              <InformationCircleIcon name="user" size={28} color="#fe6c44" />
-              <TextInput
-                className="ml-2 border border-zinc-300 flex-1 rounded-xl p-2"
-                placeholder="Type here..."
-              >
-                {user.displayName}
-              </TextInput>
-            </View>
+            <TouchableOpacity onPress={() => navigation.navigate("Setting")}>
+              <View className="flex-row mt-2 items-center">
+                <InformationCircleIcon name="user" size={28} color="#fe6c44" />
+                <View className="ml-2 border border-zinc-300 flex-1 rounded-xl p-2">
+                  <Text>{user.displayName}</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
           </View>
 
           {/* Your phone */}
           <View className="bg-zinc-100 rounded-xl p-2 shadow-sm  shadow-zinc-500">
             <Text className="font-bold">Your phone</Text>
-            <View className="flex-row mt-2 items-center">
-              <InformationCircleIcon name="user" size={28} color="#fe6c44" />
+            <TouchableOpacity onPress={() => navigation.navigate("Setting")}>
+              <View className="flex-row mt-2 items-center">
+                <InformationCircleIcon name="user" size={28} color="#fe6c44" />
 
-              <TextInput
-                className="ml-2 border border-zinc-300 flex-1 rounded-xl p-2"
-                placeholder="Type here..."
-              >
-                {user.email}
-              </TextInput>
-            </View>
+                <View className="ml-2 border border-zinc-300 flex-1 rounded-xl p-2">
+                  <Text>{user.mobile}</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
           </View>
 
           {/* Your address */}
           <View className="bg-zinc-100 rounded-xl p-2 shadow-sm  shadow-zinc-500">
             <Text className="font-bold">Your address</Text>
             <View className="flex-row items-center mt-2">
-              <InformationCircleIcon name="user" size={28} color="#fe6c44" />
-              <TextInput className="ml-2" placeholder="Type here...">
-                st. 5 Maple Avenue, W37LE
-              </TextInput>
+              <TouchableOpacity onPress={() => navigation.navigate("Location")}>
+                <View className="flex-row items-center space-x-1 py-2">
+                  <MapPinIcon color="#fe6c44" size={20} />
+                  <Text className="">
+                    {user && user.geoAddress
+                      ? user.geoAddress[user.geoAddress.length - 1].address
+                      : "Set location"}
+                  </Text>
+                </View>
+              </TouchableOpacity>
             </View>
 
             {/* NOTICE ADDRESS */}
             <View className="mt-2">
-              <Text className="font-bold">Your notice about of address</Text>
+              <Text className="font-bold">Additional information</Text>
               <View className="flex-row items-center mt-2">
-                <PencilIcon name="user" size={20} color="#fe6c44" />
+                <PaperClipIcon name="user" size={20} color="#fe6c44" />
 
-                <TextInput
-                  className="ml-2 border border-zinc-300 flex-1 rounded-xl p-2"
-                  placeholder="Type here..."
-                ></TextInput>
+                <Text className="p-2">
+                  {user &&
+                  user.geoAddress &&
+                  user.geoAddress[user.geoAddress.length - 1].floor.trim() !==
+                    ""
+                    ? "Floor: " +
+                      user.geoAddress[user.geoAddress.length - 1].floor +
+                      "."
+                    : ""}
+
+                  {user &&
+                  user.geoAddress &&
+                  user.geoAddress[
+                    user.geoAddress.length - 1
+                  ].apartment.trim() !== ""
+                    ? "\nApartment: " +
+                      user.geoAddress[user.geoAddress.length - 1].apartment +
+                      ". "
+                    : ""}
+
+                  {user &&
+                  user.geoAddress &&
+                  user.geoAddress[user.geoAddress.length - 1].addInfo.trim() !==
+                    ""
+                    ? "\nInfo: " +
+                      user.geoAddress[user.geoAddress.length - 1].addInfo +
+                      ". "
+                    : ""}
+                  {user && user.geoAddress ? "" : "-"}
+                </Text>
               </View>
             </View>
 
             {/* CHANGE ADDRESS */}
-            <TouchableOpacity className="bg-[#fe6c44] rounded-xl p-2 my-4 justify-center items-center">
+            <TouchableOpacity
+              className="bg-[#fe6c44] rounded-xl p-2 my-4 justify-center items-center"
+              onPress={() => navigation.navigate("Location")}
+            >
               <View>
                 <Text className="text-white font-semibold ">
                   Change my location
@@ -130,9 +210,20 @@ const SetOrderScreen = () => {
               <PencilIcon name="user" size={20} color="#fe6c44" />
 
               <TextInput
+               value={noticeOrder}
+               onChangeText={(text) => setNoticeOrder(text)}
                 className="ml-2 border border-zinc-300 flex-1 rounded-xl p-2"
                 placeholder="Type here..."
               ></TextInput>
+            </View>
+          </View>
+
+          {/* Your promocode */}
+          <View className="bg-zinc-100 rounded-xl p-2 shadow-sm  shadow-zinc-500">
+            <Text className="font-bold">Your promocode</Text>
+            <View className="flex-row mt-2 items-center">
+              <InformationCircleIcon name="user" size={28} color="#fe6c44" />
+              <Text className="ml-2">Select coupons</Text>
             </View>
           </View>
 
@@ -149,7 +240,7 @@ const SetOrderScreen = () => {
           </View>
         </View>
       </ScrollView>
-      <TouchableOpacity onPress={() => navigation.navigate("SetOrderScreen")}>
+      <TouchableOpacity onPress={sendOrder}>
         <View className="bg-[#fe6c44] rounded-xl m-2">
           <Text className="text-white font-bold text-xl text-center py-4 px-4">
             Place your order

@@ -23,8 +23,7 @@ const SignOnForm = () => {
   const validationSchema = yup.object().shape({
     email: yup.string().email("Invalid email").required("Email is required"),
     mobileNumber: yup
-      .number()
-      .typeError("Mobile number should only contain numbers")
+      .string()
       .required("Mobile number is required"),
     password: yup
       .string()

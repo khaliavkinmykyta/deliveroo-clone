@@ -8,6 +8,9 @@ import SignInScreen from "../screens/Auth/SignInScreen";
 import PopularScreenFood from "../screens/Home/PopularFood/PopularScreenFood";
 import BasketScreen from "../screens/Basket/BasketScreen";
 import SetOrderScreen from "../screens/Basket/SetOrderScreen";
+import RecommendScreenFood from "../screens/Home/RecommendFood/RecommendScreenFood";
+import PromotionScreenFood from "../screens/Home/PromotionFood/PromotionScreenFood";
+import SuccessOrderScreen from "../screens/Basket/SuccessOrderSreen";
 
 
 const HomeStack = createNativeStackNavigator();
@@ -19,8 +22,13 @@ const HomeStackNavigator = () => {
       <HomeStack.Screen name="FoodCategory" component={FoodCategoryScreen}/>
       <HomeStack.Screen name="FoodScreen" component={FoodScreen}/> 
       <HomeStack.Screen name="PopularScreenFood" component={PopularScreenFood }/>
+      <HomeStack.Screen name="RecommendScreenFood" component={RecommendScreenFood}/>
+      <HomeStack.Screen name="PromotionScreenFood" component={PromotionScreenFood}/>
+
       <HomeStack.Screen name="BasketScreen" component={BasketScreen }/>
       <HomeStack.Screen name="SetOrderScreen" component={SetOrderScreen }/>
+      <HomeStack.Screen name="SuccessOrderScreen" component={SuccessOrderScreen }/>
+
 
 
 

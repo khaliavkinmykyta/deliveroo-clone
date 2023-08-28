@@ -61,7 +61,7 @@ const EmailScreen = () => {
       });
   };
   return (
-    <SafeAreaView>
+    <SafeAreaView className="flex-1 bg-white">
       {/* HEADER */}
       <View className="bg-white flex-row justify-between items-center px-2">
         {/* Drawer Icon */}

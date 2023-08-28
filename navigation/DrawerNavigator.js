@@ -34,6 +34,7 @@ import NotificationsScreen from "../screens/Notifications/NotificationsScreen";
 import TrackOrderScreen from "../screens/Track/TrackOrderScreen";
 import SettingNavigator from "./SettingNavigator";
 import OrdersScreen from "../screens/Orders/OrdersScreen";
+import LocationNavigator from "./LocationNavigator";
 
 const DEFAULT_ICON_COLOR = "white";
 const DEFAULT_ICON_SIZE = 24;
@@ -99,8 +100,10 @@ const DrawerNavigator = () => {
 
       <Drawer.Screen
         name="Your Orders"
+        
         component={OrdersScreen}
         options={{
+          headerShown: false,
           drawerIcon: ({ focused, size }) => (
             <QueueListIcon
               name="oreders"
@@ -111,7 +114,21 @@ const DrawerNavigator = () => {
           ),
         }}
       />
-
+ <Drawer.Screen
+        name="Location"
+        component={LocationNavigator}
+        options={{
+          headerShown: false,
+          drawerIcon: ({ focused, size }) => (
+            <MapPinIcon
+              name="notifications"
+              color={DEFAULT_ICON_COLOR}
+              size={DEFAULT_ICON_SIZE}
+              style={{ marginRight: -20 }}
+            />
+          ),
+        }}
+      />
       <Drawer.Screen
         name="Notifications"
         component={NotificationsScreen}
@@ -159,7 +176,7 @@ const DrawerNavigator = () => {
           ),
         }}
       />
-      <Drawer.Screen
+      {/* <Drawer.Screen
         name="Wallet"
         component={WalletScreen}
         options={{
@@ -172,7 +189,7 @@ const DrawerNavigator = () => {
             />
           ),
         }}
-      />
+      /> */}
       <Drawer.Screen
         name="Setting"
         component={SettingNavigator}

@@ -10,7 +10,7 @@ export const basketSlice = createSlice({
   reducers: {
     addToBasket: (state, action) => {
       const existingItem = state.items.find(
-        (item) => item.id === action.payload.id
+        (item) => item.docName === action.payload.docName
       );
       if (existingItem) {
         console.log("Object with this id already exists in the array.");
@@ -34,7 +34,7 @@ export const basketSlice = createSlice({
 
     removeFromBasket: (state, action) => {
       const existingItemIndex = state.items.findIndex(
-        (item) => item.id === action.payload.id
+        (item) => item.docName === action.payload.docName
       );
     
       if (existingItemIndex !== -1) {
@@ -47,7 +47,6 @@ export const basketSlice = createSlice({
         }
       } else {
         console.log("Такого нет!");
-        console.log(action.payload.id);
       }
     }
     
@@ -58,8 +57,8 @@ export const { addToBasket, removeFromBasket } = basketSlice.actions;
 
 export const selectBasketItems = (state) => state.basket.items;
 
-export const selectBasketItemsWithId = (state, id) =>
-  state.basket.items.filter((item) => item.id === id);
+export const selectBasketItemsWithId = (state, docName) =>
+  state.basket.items.filter((item) => item.docName === docName);
 
 export const selectBasketTotalQuantity = (state) => {
   const basketItems = selectBasketItems(state);

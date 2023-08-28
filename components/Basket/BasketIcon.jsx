@@ -16,8 +16,8 @@ const BasketIcon = () => {
   return (
     <TouchableOpacity onPress={handlePress}>
       <View className="bg-[#ffebe5] rounded-md p-2">
-        <ShoppingBagIcon color={"black"} className="z-50" />
-        <View className="absolute top-1 right-1 rounded-md bg-[#000000] px-1 ">
+        <ShoppingBagIcon color={"black"} className="z-50"  size={32}/>
+        <View className="absolute top-1 right-1 rounded-md bg-[#000000] px-1 flex-1">
           <Text className=" text-white font-bold text-xs">{totalQuantity}</Text>
         </View>
       </View>

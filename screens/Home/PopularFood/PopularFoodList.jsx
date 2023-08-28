@@ -1,14 +1,18 @@
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
-import { getDocs } from "firebase/firestore";
+import { getDocs, limit, query } from "firebase/firestore";
 import { db } from "../../../firebase";
 import { collection } from "firebase/firestore";
 import PopularFoodItem from "./PopularFoodItem";
 import { useNavigation } from "@react-navigation/native";
+import {
+  PlusCircleIcon,
+} from "react-native-heroicons/outline";
+import { v4 as uuidv4 } from 'uuid';
+
 
 const PopularFoodList = () => {
   const [popularFoodItems, setPopularFoodItems] = useState([]);
-
   const navigation = useNavigation();
 
   const goToFoodCategory = () => {
@@ -19,9 +23,12 @@ const PopularFoodList = () => {
   useEffect(() => {
     const popularFoodRef = collection(db, "popularFoodItem");
 
-    getDocs(popularFoodRef)
+    // Limit the query to 5 elements
+    const q = query(popularFoodRef, limit(5));
+
+    getDocs(q)
       .then((querySnapshot) => {
-        console.log("Popular food list USE EFFECT")
+        console.log("Popular food list USE EFFECT");
         const popularFoodData = [];
         querySnapshot.forEach((doc) => {
           popularFoodData.push({ id: doc.id, ...doc.data() });
@@ -48,7 +55,7 @@ const PopularFoodList = () => {
       {/* HEADER TAB DESCRIPTION */}
       <Text className="text-xs text-gray-500">Top-10 dishes for this week</Text>
 
-      {/* POPULAR FOOD LIST */}
+      {/* POPULAR FOOD LIST ON HOME SCREEN */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -57,9 +64,17 @@ const PopularFoodList = () => {
           paddingTop: 10,
         }}
       >
+        {/* POPULAR FOOD MAPPING */}
         {popularFoodItems.map((item) => (
-          <PopularFoodItem key={item.id} item={item} />
+          <PopularFoodItem key={uuidv4()} item={item} />
         ))}
+        {/* VIEW ALL LAST CARD */}
+        <TouchableOpacity
+          className="items-center justify-center w-28 rounded-xl"
+          onPress={goToFoodCategory}
+        >
+          <PlusCircleIcon size={40} color={"#fe6c44"} strokeWidth={1} />
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );

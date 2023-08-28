@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
 import Loading from "../components/Loading";
+import { collection, getDocs, query, where } from "firebase/firestore";
 
 export const AuthContext = createContext();
 export const AuthDataContext = () => useContext(AuthContext);
@@ -14,32 +15,52 @@ const initialUserState = {
 
 export default function AuthWrapper({ children }) {
   const [user, setUser] = useState(initialUserState);
+  const [userDB, setUserDB] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const userTrue = auth.currentUser;
+  
 
-  //Keep user save
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
-        setUser({
-          email: user.email,
-          uid: user.uid,
-          displayName: user.displayName,
-          isAuthenticated: true,
-        });
+        const usersCollection = collection(db, "clients");
+        const q = query(usersCollection, where("id", "==", user.uid));
+  
+        try {
+          const querySnapshot = await getDocs(q);
+  
+          if (querySnapshot.empty) {
+            console.log("User not found");
+          } else {
+            const userDBData = querySnapshot.docs[0].data(); // Assuming there's only one matching document
+            console.log("User data from DB:", userDBData);
+  
+            setUser({
+              email: user.email,
+              uid: user.uid,
+              displayName: user.displayName,
+              isAuthenticated: true,
+              ...userDBData,
+            });
+          }
+        } catch (error) {
+          console.error("Error searching user:", error);
+        }
       } else {
         setUser({
           email: "Guest",
           isAuthenticated: false,
         });
       }
-      console.log("что по загрузке AUTH WEAPPER?");
+  
       setIsLoading(false);
     });
-
+  
     // Отписываемся от подписки при размонтировании компонента
     return () => unsubscribe();
   }, []);
+  
+  
 
 
 

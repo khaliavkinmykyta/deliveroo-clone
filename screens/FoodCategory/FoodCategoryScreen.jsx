@@ -14,14 +14,11 @@ import { ScrollView } from "react-native-gesture-handler";
 const FoodCategoryScreen = () => {
   const navigation = useNavigation();
   const [foodItems, setFoodItems] = React.useState([]);
-  const [newFoodItemsList, setNewFoodItemsList] = useState(false);
   const route = useRoute();
 
-  const { imgUrl, name } = route.params;
+  const { imgUrl, name, docName } = route.params;
 
-  const changeCategory = () => {
-    setNewFoodItemsList();
-  };
+
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -31,8 +28,10 @@ const FoodCategoryScreen = () => {
 
   useEffect(() => {
     console.log('hi')
-    const categoryId = name.toLowerCase();
-    const categoryDocRef = doc(db, "categories", categoryId);
+    // const categoryId = name.toLowerCase();
+    // const categoryDocRef = doc(db, "categories", categoryId);
+        const categoryDocRef = doc(db, "categories", docName);
+
     const foodItemsCollectionRef = collection(categoryDocRef, "foodItem");
 
     getDocs(foodItemsCollectionRef)
@@ -41,13 +40,17 @@ const FoodCategoryScreen = () => {
 
         querySnapshot.forEach((foodItemDoc) => {
           const foodItemData = foodItemDoc.data();
+
+
           const foodItem = {
-            id: foodItemData.id,
+            displaySequence: foodItemData.displaySequence,
+            docName: foodItemDoc.id,
+            categoryId: foodItemData.categoryId,
+
             name: foodItemData.name,
-            docName: foodItemData.docName,
+            description: foodItemData.description,
             price: foodItemData.price,
             img: foodItemData.img,
-            description: foodItemData.description,
           };
           foodItemsData.push(foodItem);
         });
@@ -57,7 +60,7 @@ const FoodCategoryScreen = () => {
       .catch((error) => {
         console.error("Error fetching food items:", error);
       });
-  }, []);
+  }, [docName]);
 
   return (
     <SafeAreaView className="bg-white flex-1">
@@ -77,7 +80,7 @@ const FoodCategoryScreen = () => {
 
         {/* Mapping current foodItem from selected category */}
         {foodItems.map((foodItem) => (
-          <FoodRow item={foodItem} key={foodItem.id} test={foodItem.uid} />
+          <FoodRow item={foodItem} key={foodItem.docName} test={foodItem.uid} />
         ))}
       </ScrollView>
     </SafeAreaView>

@@ -9,7 +9,7 @@ const RecommendFoodItem = ({ item }) => {
       onPress={() => {
         navigation.navigate("FoodScreen", {
           item: item,
-          id: item.id,
+          id: item.uid,
         });
       }}
       className="bg-gray-100 rounded-xl mr-3 justify-between items-center "
@@ -28,7 +28,7 @@ const RecommendFoodItem = ({ item }) => {
                 : item.description}
         </Text>
       </View>
-      <Text className="font-bold text-lg py-3    ">{item.price}</Text>
+      <Text className="font-bold text-lg py-3">£{item.price}</Text>
     </TouchableOpacity>
   );
 };

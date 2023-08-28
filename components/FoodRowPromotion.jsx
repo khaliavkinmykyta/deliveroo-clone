@@ -1,11 +1,9 @@
-import { View, Text, Image, TouchableOpacity, StyleSheet, Animated } from "react-native";
-import React, { useEffect, useState } from "react";
+import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import React from "react";
 import { useNavigation } from "@react-navigation/native";
 import { MinusIcon, PlusIcon } from "react-native-heroicons/solid";
 
-const FoodRow = ({ item, categoryId, test }) => {
-
-  
+const FoodPromotionRow = ({ item, categoryId, test }) => {
   const navigation = useNavigation();
 
   return (
@@ -40,11 +38,19 @@ const FoodRow = ({ item, categoryId, test }) => {
             </Text>
           </View>
         </View>
-          <View className="py-2" style={styles.addButtonContainer}>
-            <Text className={"text-base  font-bold text-white"}>
+
+        <View className='flex-1 space-y-5'>
+          <View className="py-2" style={styles.pastButtonContainer}>
+            <Text className={"text-base  font-bold text-[#fe6c44] line-through "}>
               £{item.price}
             </Text>
           </View>
+          <View className="py-2" style={styles.addButtonContainer}>
+            <Text className={"text-base  font-bold text-white"}>
+              £{(item.price*0.5).toFixed(2)}
+            </Text>
+          </View>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -90,6 +96,17 @@ const styles = StyleSheet.create({
     color: "#888",
     marginTop: 5,
   },
+  pastButtonContainer: {
+    backgroundColor: "white",
+    color: "#fe6c44",
+    borderWidth: 1,
+    borderColor: "#fe6c44",
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    flex: 1,
+    flexDirection: "row",
+  },
   addButtonContainer: {
     backgroundColor: "#fe6c44",
     borderRadius: 10,
@@ -100,4 +117,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FoodRow;
+export default FoodPromotionRow;

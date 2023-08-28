@@ -1,4 +1,10 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  FlatList,
+} from "react-native";
 import React, { useEffect, useLayoutEffect } from "react";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -10,36 +16,38 @@ import { collection, getDocs, onSnapshot } from "firebase/firestore";
 import FoodRow from "../../../components/FoodRow";
 import { db } from "../../../firebase";
 import CategoriesList from "../../../components/CategoriesList";
+import BackButton from "../../../components/BackButton";
+import BasketIcon from "../../../components/Basket/BasketIcon";
 
 const PopularScreenFood = () => {
   const navigation = useNavigation();
   const [foodItems, setFoodItems] = React.useState([]);
-  const route = useRoute();
-
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerShown: false,
-    });
-  }, []);
 
   useEffect(() => {
     const foodItemsCollectionRef = collection(db, "popularFoodItem");
 
-    // Получаем данные один раз при монтировании компонента
     getDocs(foodItemsCollectionRef)
       .then((querySnapshot) => {
         const foodItemsData = [];
-        console.log("Popularscreen  food  USE EFFECT")
+        console.log("Popularscreen  food  USE EFFECT");
 
         querySnapshot.forEach((foodItemDoc) => {
           const foodItemData = foodItemDoc.data();
           const foodItem = {
-            id: foodItemData.id,
+            // id: foodItemData.id,
+            // unicId: foodItemData.unicId,
+            // name: foodItemData.name,
+            // docName: foodItemData.docName,
+            // price: foodItemData.price,
+            // img: foodItemData.img,
+            // description: foodItemData.description,
+            displaySequence: foodItemData.displaySequence,
+            docName: foodItemDoc.id,
+            categoryId: foodItemData.categoryId,
             name: foodItemData.name,
-            docName: foodItemData.docName,
+            description: foodItemData.description,
             price: foodItemData.price,
             img: foodItemData.img,
-            description: foodItemData.description,
           };
           foodItemsData.push(foodItem);
         });
@@ -56,37 +64,28 @@ const PopularScreenFood = () => {
   }, []);
 
   return (
-    <SafeAreaView className="">
-      <View className="flex-row justify-between items-center px-2">
-        <TouchableOpacity
-          onPress={navigation.goBack}
-          className=" border-[#cecfd2] p-1"
-          style={{
-            borderColor: "#cecfd2",
-            borderWidth: 1,
-            borderRadius: "10%",
-          }}
-        >
-          <ChevronLeftIcon color="#cecfd2" />
-        </TouchableOpacity>
+    <SafeAreaView className="bg-white flex-1">
+      {/* HEADER */}
+      <View className="flex-row justify-between items-center px-2 ">
+        <BackButton />
         <Text className="text-xl font-bold text-black">Details</Text>
-        <View className="bg-[#ffebe5] rounded-md p-2">
-          <ShoppingBagIcon color={"black"} className="z-50" />
-          <View className="absolute top-1 right-1 rounded-md bg-[#000000] px-1 ">
-            <Text className=" text-white font-bold">0</Text>
-          </View>
-        </View>
+        <BasketIcon />
       </View>
+
+      {/* CategoriesList */}
       <CategoriesList />
 
+      {/* NAME OF CATEGORY */}
       <Text className="font-bold text-2xl my-2 text-center">Popular</Text>
 
-      {foodItems.map((foodItem) => (
-        <React.Fragment key={foodItem.id}>
-          {console.log(foodItem.description)}
-          <FoodRow item={foodItem} />
-        </React.Fragment>
-      ))}
+      {/* Заменили ScrollView на FlatList */}
+      <FlatList
+        data={foodItems}
+        keyExtractor={(item) => item.docName} 
+        renderItem={({ item }) => (
+          <FoodRow item={item} key={item.docName} />
+        )}
+      />
     </SafeAreaView>
   );
 };

@@ -56,8 +56,7 @@ const SettingScreen = () => {
   };
 
   return (
-    <View className="bg-white">
-      <SafeAreaView className="bg-white p-3">
+      <SafeAreaView className="bg-white p-3 flex-1">
         <ScrollView className="mx-4">
           {/* CUSTOM HEADER Drawer + Name + Logo */}
           <View className="flex-row justify-between items-center">
@@ -163,7 +162,6 @@ const SettingScreen = () => {
           </View>
         </ScrollView>
       </SafeAreaView>
-    </View>
   );
 };
 
