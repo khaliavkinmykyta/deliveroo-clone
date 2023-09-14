@@ -9,7 +9,6 @@ const PromotionFoodItem = ({ item }) => {
       onPress={() => {
         navigation.navigate("FoodScreen", {
           item: item,
-          id: item.unicId,
         });
       }}
       className="bg-gray-100 rounded-xl mr-3 justify-between items-center "
@@ -21,14 +20,26 @@ const PromotionFoodItem = ({ item }) => {
             uri: item.img,
           }}
         />
-        <Text className="font-bold px-2 text-center mb-1">{item.name}</Text>
+        <Text className="font-bold px-2 text-center mb-1">
+          {" "}
+          {item.name.length >= 40
+            ? item.name.substring(0, 40) + "..."
+            : item.name}
+        </Text>
         <Text className="text-xs text-gray-500 text-center px-2">
           {item.description.length >= 50
             ? item.description.substring(0, 50) + " read more..."
             : item.description}
         </Text>
       </View>
-      <Text className="font-bold text-lg py-3">£{item.price}</Text>
+      <View>
+        <Text className="font-bold text-red-500 line-through  text-sm   py-3">
+          £{parseFloat(item.oldPrice).toFixed(2)}
+        </Text>
+        <Text className="font-bold text-lg py-3">
+          £{parseFloat(item.price).toFixed(2)}
+        </Text>
+      </View>
     </TouchableOpacity>
   );
 };

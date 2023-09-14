@@ -1,20 +1,17 @@
-import { View, Text, Image, TouchableOpacity, StyleSheet, Animated } from "react-native";
-import React, { useEffect, useState } from "react";
+import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import React from "react";
 import { useNavigation } from "@react-navigation/native";
-import { MinusIcon, PlusIcon } from "react-native-heroicons/solid";
 
-const FoodRow = ({ item, categoryId, test }) => {
-
-  
+const FoodRow = ({ item }) => {
   const navigation = useNavigation();
 
   return (
     <TouchableOpacity
       style={styles.container}
       onPress={() => {
+        console.log(item);
         navigation.navigate("FoodScreen", {
           item: item,
-          id: item.id,
         });
       }}
     >
@@ -33,18 +30,26 @@ const FoodRow = ({ item, categoryId, test }) => {
 
           <View style={styles.textContainer}>
             <Text style={styles.name}>{item.name}</Text>
+            {item.oldPrice ? (
+              <Text style={styles.name} className="text-red-500 line-through">
+                £{item.oldPrice}
+              </Text>
+            ) : (
+              ""
+            )}
+
             <Text style={styles.description}>
-              {item.description.length >= 50
-                ? item.description.substring(0, 100) + " read more..."
+              {item.description.length >= 75
+                ? item.description.substring(0, 75) + " read more..."
                 : item.description}
             </Text>
           </View>
         </View>
-          <View className="py-2" style={styles.addButtonContainer}>
-            <Text className={"text-base  font-bold text-white"}>
-              £{item.price}
-            </Text>
-          </View>
+        <View className="py-2" style={styles.addButtonContainer}>
+          <Text className={"text-base  font-bold text-white"}>
+            £{parseFloat(item.price).toFixed(2)}
+          </Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -53,7 +58,6 @@ const FoodRow = ({ item, categoryId, test }) => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#F4F4F4",
-    marginHorizontal: 20,
     marginVertical: 4,
     borderRadius: 8,
   },

@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, SafeAreaView } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import React, { useState } from "react";
 import { ChevronLeftIcon } from "react-native-heroicons/outline";
 import BasketIcon from "../../../components/Basket/BasketIcon";
@@ -18,6 +18,7 @@ import {
   where,
 } from "firebase/firestore";
 import { AuthDataContext } from "../../../hooks/AuthWrapper";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const MobileScreen = () => {
   const navigation = useNavigation();

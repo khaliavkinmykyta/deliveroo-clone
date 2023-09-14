@@ -1,18 +1,8 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  FlatList,
-} from "react-native";
-import React, { useEffect, useLayoutEffect } from "react";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { View, Text, FlatList } from "react-native";
+import React, { useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  ChevronLeftIcon,
-  ShoppingBagIcon,
-} from "react-native-heroicons/outline";
-import { collection, getDocs, onSnapshot } from "firebase/firestore";
+
+import { collection, getDocs } from "firebase/firestore";
 import FoodRow from "../../../components/FoodRow";
 import { db } from "../../../firebase";
 import CategoriesList from "../../../components/CategoriesList";
@@ -20,7 +10,6 @@ import BackButton from "../../../components/BackButton";
 import BasketIcon from "../../../components/Basket/BasketIcon";
 
 const PopularScreenFood = () => {
-  const navigation = useNavigation();
   const [foodItems, setFoodItems] = React.useState([]);
 
   useEffect(() => {
@@ -33,23 +22,8 @@ const PopularScreenFood = () => {
 
         querySnapshot.forEach((foodItemDoc) => {
           const foodItemData = foodItemDoc.data();
-          const foodItem = {
-            // id: foodItemData.id,
-            // unicId: foodItemData.unicId,
-            // name: foodItemData.name,
-            // docName: foodItemData.docName,
-            // price: foodItemData.price,
-            // img: foodItemData.img,
-            // description: foodItemData.description,
-            displaySequence: foodItemData.displaySequence,
-            docName: foodItemDoc.id,
-            categoryId: foodItemData.categoryId,
-            name: foodItemData.name,
-            description: foodItemData.description,
-            price: foodItemData.price,
-            img: foodItemData.img,
-          };
-          foodItemsData.push(foodItem);
+          (foodItemData.docName = foodItemDoc.id),
+            foodItemsData.push(foodItemData);
         });
 
         // Проверяем, если коллекция пуста, устанавливаем empty в true
@@ -60,13 +34,12 @@ const PopularScreenFood = () => {
         console.error("Error fetching food items:", error);
       });
 
-    // Заметьте, что мы убрали подписку и return из этого блока
   }, []);
 
   return (
-    <SafeAreaView className="bg-white flex-1">
+    <SafeAreaView className="bg-white flex-1 px-4 py-2">
       {/* HEADER */}
-      <View className="flex-row justify-between items-center px-2 ">
+      <View className="flex-row justify-between items-center">
         <BackButton />
         <Text className="text-xl font-bold text-black">Details</Text>
         <BasketIcon />
@@ -78,13 +51,10 @@ const PopularScreenFood = () => {
       {/* NAME OF CATEGORY */}
       <Text className="font-bold text-2xl my-2 text-center">Popular</Text>
 
-      {/* Заменили ScrollView на FlatList */}
       <FlatList
-        data={foodItems}
-        keyExtractor={(item) => item.docName} 
-        renderItem={({ item }) => (
-          <FoodRow item={item} key={item.docName} />
-        )}
+        data={foodItems.sort((a, b) => a.displaySequence - b.displaySequence)}
+        keyExtractor={(item) => item.docName}
+        renderItem={({ item }) => <FoodRow item={item} key={item.docName} />}
       />
     </SafeAreaView>
   );

@@ -4,29 +4,89 @@ import {
   Image,
   ScrollView,
   TouchableOpacity,
+  Animated,
 } from "react-native";
-import React, { useEffect, useLayoutEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRoute } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  ListBulletIcon,
-} from "react-native-heroicons/outline";
+import { ArrowUturnLeftIcon } from "react-native-heroicons/outline";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addToBasket,
   removeFromBasket,
+  selectBasketItemsWithId,
 } from "../../features/basketSlice";
 import BasketIcon from "../../components/Basket/BasketIcon";
 import BackButton from "../../components/BackButton";
 import ImageModal from "./ImageModal";
 import { db } from "../../firebase";
 import { doc, getDoc } from "firebase/firestore";
+import { Easing } from "react-native-reanimated";
 
 const FoodScreen = () => {
+  const navigation = useNavigation();
+
   const [catName, setCatName] = useState("");
   const [showImageModal, setShowImageModal] = useState(false);
   const [modalImageUrl, setModalImageUrl] = useState(null);
+
+  const [isPressedAdd, setIsPressedAdd] = useState(false);
+  const [isPressedRemove, setIsPressedRemove] = useState(false);
+
+  const colorValueAdd = useRef(new Animated.Value(0)).current;
+  const colorValueRemove = useRef(new Animated.Value(0)).current;
+
+  const handlePressInAdd = () => {
+    setIsPressedAdd(true);
+
+    // const colorChange = Animated.timing(colorValueAdd, {
+    //   toValue: 1,
+    //   duration: 250,
+    //   useNativeDriver: false,
+    // });
+
+    // const colorReset = Animated.timing(colorValueAdd, {
+    //   toValue: 0,
+    //   duration: 250,
+    //   useNativeDriver: false,
+    // });
+
+    // Animated.sequence([colorChange, colorReset]).start(() => {
+    //   setIsPressedAdd(false);
+    // });
+  };
+
+  const handlePressInRemove = () => {
+    setIsPressedRemove(true);
+
+    const colorChange = Animated.timing(colorValueRemove, {
+      toValue: 1,
+      duration: 250,
+      useNativeDriver: false,
+    });
+
+    const colorReset = Animated.timing(colorValueRemove, {
+      toValue: 0,
+      duration: 250,
+      useNativeDriver: false,
+    });
+
+    Animated.sequence([colorChange, colorReset]).start(() => {
+      setIsPressedRemove(false);
+    });
+  };
+
+  const shadowAdd = colorValueAdd.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["#e5e7eb", "rgba(254, 108, 68, 0.5)"],
+  });
+
+  const shadowRemove = colorValueRemove.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["#e5e7eb", "rgba(107, 114, 128, 0.5)"],
+  });
+
   const openImageModal = (imageUrl) => {
     setModalImageUrl(imageUrl);
     setShowImageModal(true);
@@ -36,36 +96,33 @@ const FoodScreen = () => {
     setShowImageModal(false);
     setModalImageUrl(null);
   };
+
   //import root props
   const {
-    // params: { id, imgUrl, nameFood, descFood, price },
-    params: { item, id },
+    params: { item },
   } = useRoute();
-
-  //clear header
-  const navigation = useNavigation();
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerShown: false,
-    });
-  }, []);
 
   const dispatch = useDispatch();
   const [isBuy, setIsBuy] = useState(false);
 
-
-  const handlePress = () => {
-    navigation.navigate("BasketScreen");
-  };
+  const totalQuantityForFoodItem = useSelector((state) =>
+    selectBasketItemsWithId(state, item.docName)
+  );
 
   const addItemToBasket = () => {
-    dispatch(addToBasket(item));
+    console.log("*************");
 
+    console.log(totalQuantityForFoodItem);
+    // console.log('--------');
+    // console.log(item)
+
+    // console.log('--------');
+
+    dispatch(addToBasket(item));
   };
 
-  const removeItemFromBasket = () => {  
+  const removeItemFromBasket = () => {
     dispatch(removeFromBasket(item));
-
   };
 
   const buyNow = () => {
@@ -74,7 +131,7 @@ const FoodScreen = () => {
   };
 
   useEffect(() => {
-    console.log(item)
+    console.log(item);
     const categoryDocRef = doc(db, "categories", item.categoryId);
 
     getDoc(categoryDocRef)
@@ -99,28 +156,29 @@ const FoodScreen = () => {
 
   const goToFoodCategory = () => {
     navigation.navigate("FoodCategory", {
-      // set your categotyID
       docName: item.categoryId,
     });
   };
 
   return (
-    <SafeAreaView className="bg-white p-2">
-      <View className="bg-white flex-row justify-between items-center px-2">
+    <SafeAreaView className="bg-white px-4 py-2 flex-1">
+      <View className="bg-white flex-row justify-between items-center">
         <BackButton />
-
         <Text className="text-xl font-bold text-black">Details</Text>
         <BasketIcon />
       </View>
-      <TouchableOpacity className="m-2" onPress={goToFoodCategory}>
+      <TouchableOpacity className="my-2" onPress={goToFoodCategory}>
         <View className="flex-row gap-1 items-center rounded-sm p-1">
-        <ListBulletIcon size={16} color={"black"} />
-          <Text className="text-black ">{catName}</Text>
+          <ArrowUturnLeftIcon size={16} color={"black"} />
+          <Text className="text-black ">
+            {catName}/
+            {item.name.length > 20 ? `${item.name.slice(0, 20)}...` : item.name}
+          </Text>
         </View>
       </TouchableOpacity>
 
       <ScrollView>
-        <View className="mx-2">
+        <View className="">
           <View className="my-10">
             <TouchableOpacity onPress={() => openImageModal(item.img)}>
               <Image
@@ -133,30 +191,53 @@ const FoodScreen = () => {
           </View>
           <Text className="text-2xl  font-bold">{item.name}</Text>
           <Text className="text-gray-600 pt-4">{item.description}</Text>
-          <View className="flex-row mt-10 space-x-2">
-            <View className="bg-gray-200  rounded-xl p-2 w-1/2 m-auto flex-row justify-around ">
-              <TouchableOpacity onPress={removeItemFromBasket}>
+          <View className="flex-row mt-10 space-x-2 mx-4">
+            <Animated.View
+              className="bg-gray-200  rounded-xl p-2 w-1/2 m-auto flex-row justify-around shadow-lg "
+              style={{
+                shadowColor: isPressedRemove ? shadowRemove : shadowAdd,
+              }}
+            >
+              <TouchableOpacity
+                onPress={() => {
+                  handlePressInRemove();
+                  removeItemFromBasket();
+                }}
+              >
                 <Text className="text-black  font-bold text-lg text-center">
                   -
                 </Text>
               </TouchableOpacity>
+
               <Text className="text-black  font-bold text-lg text-center">
-                Add
+                Add{" "}
+                {totalQuantityForFoodItem > 0
+                  ? `(${totalQuantityForFoodItem}х)`
+                  : ""}
               </Text>
-              
-              <TouchableOpacity onPress={addItemToBasket}>
-                
+
+              <TouchableOpacity
+                // onPress={addItemToBasket}
+                onPress={() => {
+                  handlePressInAdd();
+                  addItemToBasket();
+                }}
+              >
                 <Text className="text-black  font-bold text-lg text-center">
                   +
                 </Text>
               </TouchableOpacity>
-            </View>
+            </Animated.View>
+
             <TouchableOpacity
               className="bg-[#fe6c44] rounded-xl p-2 w-1/2 m-auto"
-              onPress={buyNow}
+              onPress={() => {
+                handlePressInAdd();
+                addItemToBasket();
+              }}
             >
               <Text className="text-white  font-bold text-lg text-center">
-                {!isBuy ? `Buy now $${item.price}` : "Added"}
+                Buy now ${parseFloat(item.price).toFixed(2)}
               </Text>
             </TouchableOpacity>
           </View>

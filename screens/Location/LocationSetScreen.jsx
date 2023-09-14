@@ -1,10 +1,11 @@
 import {
   View,
   Text,
-  SafeAreaView,
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
@@ -20,20 +21,30 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import { useNavigation } from "@react-navigation/native";
+import {
+  useFocusEffect,
+  useIsFocused,
+  useNavigation,
+} from "@react-navigation/native";
 import BasketIcon from "../../components/Basket/BasketIcon";
 import BackButton from "../../components/BackButton";
 import * as geolib from "geolib";
+import { SafeAreaView } from "react-native-safe-area-context";
+import {GOOGLE_API_KEY} from '@env';
 
-
+// const GOOGlE_API_KEY = process.env.GOOGLE_API_KEY;
 const LocationSetScreen = () => {
   const navigation = useNavigation();
   const { user, updateUser } = AuthDataContext();
 
   //   INITIAL FROM STORE
-  const [storeLocation, setStoreLocation] = useState({});
+  const [storeLocation, setStoreLocation] = useState({
+    latitude: 51.5073359,
+    longitude: -0.12765,
+  });
   const [deliveryRange, setDeliveryRange] = useState(0);
   const [selectedLocation, setSelectedLocation] = useState(storeLocation);
+  const isFocused = useIsFocused();
 
   // GET STORE GEO DATA
   useEffect(() => {
@@ -54,6 +65,22 @@ const LocationSetScreen = () => {
         console.error("Error getting document:", error);
       });
   }, []);
+
+  useEffect(() => {
+    if (isFocused) {
+      // Этот код будет выполняться каждый раз,
+      // когда экран получает фокус
+      setFloor("");
+      setApartment("");
+      setAddInfo("");
+      setGeoAddress("");
+      setAdded(false);
+      setAddedError(false);
+      setDisableAddBtn(true);
+      setPin(false);
+      setOutAddress("");
+    }
+  }, [isFocused]);
 
   //   ADD.INFO
   const [floor, setFloor] = useState("");
@@ -156,184 +183,186 @@ const LocationSetScreen = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }} className="bg-white">
-      {/* HEADER */}
-      <View className="bg-white flex-row justify-between items-center px-2 mb-2">
-        {/* Back Icon */}
-        <BackButton />
-        <Text className="text-xl font-bold text-black">Your location</Text>
-        <BasketIcon />
-      </View>
-      <View className="mx-4">
-        <View
-          className="relative"
-          style={{ zIndex: 2, height: 44, marginVertical: 5 }}
-        >
-          <View className="absolute z-100 w-full">
-            <GooglePlacesAutocomplete
-              placeholder="Type a zip code or a place"
-              onPress={(data, details = null) => {
-                setAdded(false);
-                setPin(true);
-                setGeoAddress({
-                  latitude: details.geometry.location.lat,
-                  longitude: details.geometry.location.lng,
-                  address: data.description,
-                });
-                setSelectedLocation({
-                  latitude: details.geometry.location.lat,
-                  longitude: details.geometry.location.lng,
-                });
-                const locationNow = {
-                  latitude: details.geometry.location.lat,
-                  longitude: details.geometry.location.lng,
-                };
-                validateLocation(locationNow);
-              }}
-              query={{
-                key: GOOGlE_API_KEY,
-                components: "country:uk",
-                language: "en",
-              }}
-              minLength={0}
-              suppressDefaultStyles={false}
-              //   STYLES
-              styles={{
-                container: {
-                  flex: 0,
-                },
-                textInput: styles.textInput,
-                row: styles.row,
-                textInputContainer: styles.textInputContainer,
-                poweredContainer: styles.poweredContainer,
-              }}
-              enablePoweredByContainer={false}
-              autoFocus={false}
-              returnKeyType={"default"}
-              fetchDetails={true}
-              onFail={(error) => {
-                setAddedError(true);
-                console.log(error);
-              }}
-              onNotFound={() => console.log("no results")}
-              listEmptyComponent={() => (
-                <View style={{ flex: 1 }}>
-                  <Text>No results were found</Text>
-                </View>
-              )}
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <SafeAreaView style={{ flex: 1 }} className="bg-white">
+        {/* HEADER */}
+        <View className="bg-white flex-row justify-between items-center px-2 mb-2">
+          {/* Back Icon */}
+          <BackButton />
+          <Text className="text-xl font-bold text-black">Your location</Text>
+          <BasketIcon />
+        </View>
+        <View className="mx-4">
+          <View
+            className="relative"
+            style={{ zIndex: 2, height: 44, marginVertical: 5 }}
+          >
+            <View className="absolute z-100 w-full">
+              <GooglePlacesAutocomplete
+                placeholder="Type a zip code or a place"
+                onPress={(data, details = null) => {
+                  setAdded(false);
+                  setPin(true);
+                  setGeoAddress({
+                    latitude: details.geometry.location.lat,
+                    longitude: details.geometry.location.lng,
+                    address: data.description,
+                  });
+                  setSelectedLocation({
+                    latitude: details.geometry.location.lat,
+                    longitude: details.geometry.location.lng,
+                  });
+                  const locationNow = {
+                    latitude: details.geometry.location.lat,
+                    longitude: details.geometry.location.lng,
+                  };
+                  validateLocation(locationNow);
+                }}
+                query={{
+                  key: GOOGLE_API_KEY,
+                  components: "country:uk",
+                  language: "en",
+                }}
+                minLength={0}
+                suppressDefaultStyles={false}
+                //   STYLES
+                styles={{
+                  container: {
+                    flex: 0,
+                  },
+                  textInput: styles.textInput,
+                  row: styles.row,
+                  textInputContainer: styles.textInputContainer,
+                  poweredContainer: styles.poweredContainer,
+                }}
+                enablePoweredByContainer={false}
+                autoFocus={false}
+                returnKeyType={"default"}
+                fetchDetails={true}
+                onFail={(error) => {
+                  setAddedError(true);
+                  console.log(error);
+                }}
+                onNotFound={() => console.log("no results")}
+                listEmptyComponent={() => (
+                  <View style={{ flex: 1 }}>
+                    <Text>No results were found</Text>
+                  </View>
+                )}
+              />
+            </View>
+          </View>
+          {/* EXTRA FIELD FOR ADDRESS */}
+          <View>
+            <TextInput
+              placeholder="Add floor"
+              style={styles.textInput}
+              value={floor}
+              onChangeText={setFloor}
+            />
+            <TextInput
+              placeholder="Add apartment"
+              style={styles.textInput}
+              value={apartment}
+              onChangeText={setApartment}
+            />
+            <TextInput
+              placeholder="Add additional info"
+              style={styles.textInput}
+              value={addInfo}
+              onChangeText={setAddInfo}
             />
           </View>
-        </View>
-        {/* EXTRA FIELD FOR ADDRESS */}
-        <View>
-          <TextInput
-            placeholder="Add floor"
-            style={styles.textInput}
-            value={floor}
-            onChangeText={setFloor}
-          />
-          <TextInput
-            placeholder="Add apartment"
-            style={styles.textInput}
-            value={apartment}
-            onChangeText={setApartment}
-          />
-          <TextInput
-            placeholder="Add additional info"
-            style={styles.textInput}
-            value={addInfo}
-            onChangeText={setAddInfo}
-          />
-        </View>
 
-        {/* SUCCESS ADDED */}
-        {added ? (
-          <View className="bg-[#fe6c44] items-center p-2 rounded-full">
-            <Text className="font-bold text-white">Added!</Text>
-          </View>
-        ) : (
-          ""
-        )}
-
-        {/* ADDED ADDRESS ERROR */}
-        {addedError ? (
-          <View className="bg-[#fe6c44] items-center p-2 rounded-full">
-            <Text className="font-bold text-w">{addedError}</Text>
-          </View>
-        ) : (
-          ""
-        )}
-
-        {/* OUT OF RANGE */}
-        {outAddress ? (
-          <View className="bg-[#fe6c44] items-center p-2 rounded-full my-2 w-1/2 mx-auto ">
-            <Text className="font-bold text-white text-center">
-              {outAddress}
-            </Text>
-          </View>
-        ) : (
-          ""
-        )}
-        {/* BUTTON FOR ADDRESS */}
-        <View className="my-5 space-y-2">
-          {outAddress.length > 0 ? (
-            ""
+          {/* SUCCESS ADDED */}
+          {added ? (
+            <View className="bg-[#fe6c44] items-center p-2 rounded-full">
+              <Text className="font-bold text-white">Added!</Text>
+            </View>
           ) : (
-            <TouchableOpacity
-              disabled={disableAddBtn}
-              onPress={writeData}
-              className={`bg-[#fe6c44] text-white rounded-xl items-center justify-center w-1/2 mx-auto ${
-                disableAddBtn ? "opacity-50" : ""
-              }`}
-            >
-              <Text className="text-white font-bold text-md p-5">
-                Add address
-              </Text>
-            </TouchableOpacity>
+            ""
           )}
 
-          <TouchableOpacity
-            onPress={() => navigation.navigate("YourLocation")}
-            className="bg-white border-[#fe6c44]  border text-white rounded-xl items-center justify-center w-1/2 mx-auto"
-          >
-            <Text className="text-[#fe6c44]  font-bold text-md py-5 px-2 text-center">
-              Your previous address
-            </Text>
-          </TouchableOpacity>
+          {/* ADDED ADDRESS ERROR */}
+          {addedError ? (
+            <View className="bg-[#fe6c44] items-center p-2 rounded-full">
+              <Text className="font-bold text-w">{addedError}</Text>
+            </View>
+          ) : (
+            ""
+          )}
+
+          {/* OUT OF RANGE */}
+          {outAddress ? (
+            <View className="bg-[#fe6c44] items-center p-2 rounded-full my-2 w-1/2 mx-auto ">
+              <Text className="font-bold text-white text-center">
+                {outAddress}
+              </Text>
+            </View>
+          ) : (
+            ""
+          )}
+          {/* BUTTON FOR ADDRESS */}
+          <View className="my-5 space-y-2">
+            {outAddress.length > 0 ? (
+              ""
+            ) : (
+              <TouchableOpacity
+                disabled={disableAddBtn}
+                onPress={writeData}
+                className={`bg-[#fe6c44] text-white rounded-xl items-center justify-center w-1/2 mx-auto ${
+                  disableAddBtn ? "opacity-50" : ""
+                }`}
+              >
+                <Text className="text-white font-bold text-md p-5">
+                  Add address
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            <TouchableOpacity
+              onPress={() => navigation.navigate("YourLocation")}
+              className="bg-white border-[#fe6c44]  border text-white rounded-xl items-center justify-center w-1/2 mx-auto"
+            >
+              <Text className="text-[#fe6c44]  font-bold text-md py-5 px-2 text-center">
+                Your previous address
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
 
-      {/* MAP SETTING */}
-      <MapView
-        style={{ flex: 1 }}
-        region={{
-          latitude: storeLocation.latitude,
-          longitude: storeLocation.longitude,
-          latitudeDelta: 0.2,
-          longitudeDelta: 0.2,
-        }}
-      >
-        {/* PIN USER ADDRESS */}
-        {pin && (
-          <Marker
-            coordinate={{
-              latitude: selectedLocation.latitude,
-              longitude: selectedLocation.longitude,
-            }}
-            pinColor={"#fe6c44"}
+        {/* MAP SETTING */}
+        <MapView
+          style={{ flex: 1 }}
+          region={{
+            latitude: storeLocation.latitude,
+            longitude: storeLocation.longitude,
+            latitudeDelta: 0.2,
+            longitudeDelta: 0.2,
+          }}
+        >
+          {/* PIN USER ADDRESS */}
+          {pin && (
+            <Marker
+              coordinate={{
+                latitude: selectedLocation.latitude,
+                longitude: selectedLocation.longitude,
+              }}
+              pinColor={"#fe6c44"}
+            />
+          )}
+
+          {/* PIN CIRCLE FOR RADIUS STORE */}
+          <Circle
+            center={storeLocation}
+            radius={deliveryRange}
+            fillColor="rgba(254, 108, 68, 0.3)"
+            strokeColor="rgba(254, 108, 68, 0.3)"
+            strokeWidth={1}
           />
-        )}
-
-        {/* PIN CIRCLE FOR RADIUS STORE */}
-        <Circle
-          center={storeLocation}
-          radius={deliveryRange}
-          fillColor="rgba(254, 108, 68, 0.3)"
-          strokeColor="rgba(254, 108, 68, 0.3)"
-          strokeWidth={1}
-        />
-      </MapView>
-    </SafeAreaView>
+        </MapView>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 };
 

@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { getDocs, limit, query } from "firebase/firestore";
 import { db } from "../../../firebase";
 import { collection } from "firebase/firestore";
@@ -12,25 +12,22 @@ const RecommendFoodList = () => {
   const [recommendFoodItems, setRecommendFoodItems] = useState([]);
   const navigation = useNavigation();
 
-  useEffect(() => {
-    const recommendFoodRef = collection(db, "recommendFoodItem");
+  const fetchRecommendFood = useCallback(async () => {
+    try {
+      const recommendFoodRef = collection(db, "recommendFoodItem");
+      const q = query(recommendFoodRef, limit(5));
+      const querySnapshot = await getDocs(q);
 
-    // Limit the query to 5 elements
-    const q = query(recommendFoodRef, limit(5));
-
-    getDocs(q)
-      .then((querySnapshot) => {
-        console.log("recommendFoodData food list USE EFFECT");
-        const recommendFoodData = [];
-        querySnapshot.forEach((doc) => {
-          recommendFoodData.push({ id: doc.id, ...doc.data() });
-        });
-        setRecommendFoodItems(recommendFoodData);
-      })
-      .catch((error) => {
-        console.error("Error fetching recommendFoodData food items:", error);
-      });
+      const recommendFoodData = querySnapshot.docs.map((doc) => doc.data());
+      setRecommendFoodItems(recommendFoodData);
+    } catch (error) {
+      console.error("Error fetching Recommend food items:", error);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchRecommendFood();
+  }, [fetchRecommendFood]);
 
   const goToFoodCategory = () => {
     navigation.navigate("RecommendScreenFood");

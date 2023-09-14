@@ -10,18 +10,25 @@ const BasketIcon = () => {
   const navigation = useNavigation();
 
   const handlePress = () => {
-    navigation.navigate('BasketScreen');
-  }
+    navigation.navigate("BasketScreen");
+  };
 
   return (
-    <TouchableOpacity onPress={handlePress}>
-      <View className="bg-[#ffebe5] rounded-md p-2">
-        <ShoppingBagIcon color={"black"} className="z-50"  size={32}/>
-        <View className="absolute top-1 right-1 rounded-md bg-[#000000] px-1 flex-1">
-          <Text className=" text-white font-bold text-xs">{totalQuantity}</Text>
+    <View>
+      <TouchableOpacity onPress={handlePress}>
+        <View className="bg-[#ffebe5] rounded-md p-2">
+          <ShoppingBagIcon color={"black"} className="z-50" size={26} />
         </View>
-      </View>
-    </TouchableOpacity>
+        <View className="absolute top-1 right-1 rounded-md bg-[#000000] px-1">
+          {/* <Text className=" text-white font-bold text-xs">{totalQuantity}</Text> */}
+          <Text className=" text-white font-bold text-xs">
+            {totalQuantity > 999
+              ? `${totalQuantity.toString().slice(0, 2)}..`
+              : totalQuantity.toString()}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    </View>
   );
 };
 

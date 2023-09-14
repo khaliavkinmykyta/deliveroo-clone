@@ -1,7 +1,6 @@
 import {
   View,
   Text,
-  SafeAreaView,
   TouchableOpacity,
   ScrollView,
   Button,
@@ -19,6 +18,7 @@ import {
 import { db } from "../../firebase";
 import { AuthDataContext } from "../../hooks/AuthWrapper";
 import BackButton from "../../components/BackButton";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const YourLocation = () => {
   const { user, updateUser } = AuthDataContext();
@@ -62,6 +62,11 @@ const YourLocation = () => {
             .then(() => {
               console.log("Address deleted successfully");
               setCurrentGeoAddress(currentGeoAddress); // Обновление состояния
+              const updatedUser = {
+                ...user,
+                geoAddress: [],
+              };
+              updateUser(updatedUser);
             })
             .catch((error) => {
               console.error("Error deleting address:", error);

@@ -3,7 +3,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  SafeAreaView,
   ScrollView,
   TouchableWithoutFeedback,
   Image,
@@ -27,6 +26,10 @@ import { AuthDataContext } from "../../hooks/AuthWrapper";
 import { useForm, Controller } from "react-hook-form";
 import ChangePassword from "./ChangePassword";
 import { auth } from "../../firebase";
+import OpenDrawer from "../../components/Buttons/OpenDrawer";
+import BackButton from "../../components/BackButton";
+import { SafeAreaView } from "react-native-safe-area-context";
+
 
 const SettingScreen = () => {
   const navigation = useNavigation();
@@ -61,12 +64,7 @@ const SettingScreen = () => {
           {/* CUSTOM HEADER Drawer + Name + Logo */}
           <View className="flex-row justify-between items-center">
             {/* Drawer Icon */}
-            <TouchableWithoutFeedback onPress={openDrawer}>
-              <View className="p-1 border border-zinc-500 rounded-xl">
-                <Bars3CenterLeftIcon color="#71717a" size={26} />
-              </View>
-            </TouchableWithoutFeedback>
-
+            <BackButton/>
             {/* Name Screen */}
             <Text className="text-xl font-bold text-black">Setting</Text>
 

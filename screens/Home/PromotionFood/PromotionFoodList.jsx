@@ -1,15 +1,12 @@
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { getDocs, limit, query } from "firebase/firestore";
 import { db } from "../../../firebase";
 import { collection } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
-import {
-  PlusCircleIcon,
-} from "react-native-heroicons/outline";
-import { v4 as uuidv4 } from 'uuid';
+import { PlusCircleIcon } from "react-native-heroicons/outline";
+import { v4 as uuidv4 } from "uuid";
 import PromotionFoodItem from "./PromotionFoodItem";
-
 
 const PromotionFoodList = () => {
   const [promotionFoodItems, setPromotionFoodItems] = useState([]);
@@ -17,31 +14,28 @@ const PromotionFoodList = () => {
 
   const goToFoodCategory = () => {
     navigation.navigate("PromotionScreenFood");
+    
   };
 
-  // FETCH PROMOTION FOOD
-  useEffect(() => {
-    const promotionFoodRef = collection(db, "promotionFoodItem");
+  const fetchPromotionFood = useCallback(async () => {
+    try {
+      const promotionFoodRef = collection(db, "promotionFoodItem");
+      const q = query(promotionFoodRef, limit(5));
+      const querySnapshot = await getDocs(q);
 
-    // Limit the query to 5 elements
-    const q = query(promotionFoodRef, limit(5));
-
-    getDocs(q)
-      .then((querySnapshot) => {
-        console.log("Promo food list USE EFFECT");
-        const promotionFoodData = [];
-        querySnapshot.forEach((doc) => {
-          promotionFoodData.push({ id: doc.id, ...doc.data() });
-        });
-        setPromotionFoodItems(promotionFoodData);
-      })
-      .catch((error) => {
-        console.error("Error fetching promo food items:", error);
-      });
+      const promotionFoodData = querySnapshot.docs.map((doc) => doc.data());
+      setPromotionFoodItems(promotionFoodData);
+    } catch (error) {
+      console.error("Error fetching promo food items:", error);
+    }
   }, []);
 
+  useEffect(() => {
+    fetchPromotionFood();
+  }, [fetchPromotionFood]);
+
   return (
-    <View className="px-2">
+    <View className="">
       {/* HEADER TAB */}
       <View className="flex-row justify-between items-center mt-4">
         <Text className="font-bold text-lg">Promotion Food</Text>
@@ -53,14 +47,13 @@ const PromotionFoodList = () => {
       </View>
 
       {/* HEADER TAB DESCRIPTION */}
-      <Text className="text-xs text-gray-500">Top-10 dishes for this week</Text>
+      <Text className="text-xs text-gray-500">Best promotional offers</Text>
 
       {/* PROMOTION FOOD LIST ON HOME SCREEN */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{
-          paddingHorizontal: 0,
           paddingTop: 10,
         }}
       >

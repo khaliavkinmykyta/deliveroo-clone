@@ -3,7 +3,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  SafeAreaView,
 } from "react-native";
 import React, { useState } from "react";
 
@@ -15,6 +14,7 @@ import { useForm, Controller } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigation } from "@react-navigation/native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const ChangePassword = () => {
   const user = auth.currentUser;

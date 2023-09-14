@@ -1,22 +1,34 @@
-import { View, Text, SafeAreaView, Touchable } from "react-native";
+import { View, Text, SafeAreaView, Image, Touchable } from "react-native";
 import React from "react";
 import { HandThumbUpIcon } from "react-native-heroicons/outline";
 import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
 const SuccessOrderScreen = () => {
-  const navigation = useNavigation()
+  const navigation = useNavigation();
   return (
-    <SafeAreaView className="bg-[#fe6c44] flex-1 justify-center items-center gap-5">
-      <View className="justify-center items-center flex-row gap-1">
-
-        <Text className="text-center font-bold text-3xl">Order success</Text>
-        <HandThumbUpIcon size={32} color={"black"} />
-
+    <SafeAreaView className="bg-[#fe6c44] flex-1 justify-center items-center gap-10">
+      <View className="justify-center items-center flex-row  px-4 ">
+        <Text className="text-center font-bold text-3xl">
+          Thank you for your order!
+        </Text>
       </View>
       <View>
-        <TouchableOpacity className="bg-black  rounded-full" onPress={() => navigation.navigate("Home")}>
-          <Text className="text-[#fe6c44] text-3xl p-3">Back to menu</Text>
+        <Image
+          source={{
+            uri: "https://firebasestorage.googleapis.com/v0/b/test-client-app-ff5fa.appspot.com/o/images%2Fcheers.png?alt=media&token=0f6a10e3-fe59-4752-96ca-53b1acdd42db",
+          }}
+          className="w-32 h-32 rounded-full"
+        />
+      </View>
+      <View>
+        <TouchableOpacity
+          className="bg-black  rounded-full"
+          onPress={() => navigation.navigate("Home")}
+        >
+          <Text className="text-white font-bold text-2xl px-6 py-2">
+            Back to menu
+          </Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

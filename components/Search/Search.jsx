@@ -43,7 +43,7 @@ const Search = () => {
   }, [searchTerm]);
   return (
     <>
-      <View className="bg-gray-100 rounded-xl px-2 mx-2 my-4 ">
+      <View className="bg-gray-100 rounded-xl my-4 ">
         <View className="flex-row items-center space-x-2  ">
           <View className="flex-row flex-1 space-x-2 p-2">
             <MagnifyingGlassIcon color="black" />
@@ -58,7 +58,7 @@ const Search = () => {
           </View>
         </View>
       </View>
-      <View className="mx-2 relative" style={{ zIndex: 2 }}>
+      <View className="relative" style={{ zIndex: 2 }}>
         <View className="absolute z-100 w-full">
           <FlatList
             data={searchResults}
@@ -79,7 +79,7 @@ const Search = () => {
                       source={{ uri: item.img }}
                       className="h-5 w-5 rounded-full"
                     />
-                    <Text className="">{item.name}</Text>
+                    <Text className="">{item.name.length > 30 ? `${item.name.slice(0, 30)}...` : item.name}</Text>
                   </View>
                   <Text className="font-bold">${item.price}</Text>
                 </View>

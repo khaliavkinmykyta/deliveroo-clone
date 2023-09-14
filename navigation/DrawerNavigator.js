@@ -35,6 +35,8 @@ import TrackOrderScreen from "../screens/Track/TrackOrderScreen";
 import SettingNavigator from "./SettingNavigator";
 import OrdersScreen from "../screens/Orders/OrdersScreen";
 import LocationNavigator from "./LocationNavigator";
+import { useDispatch } from "react-redux";
+import { clearBasket } from "../features/basketSlice";
 
 const DEFAULT_ICON_COLOR = "white";
 const DEFAULT_ICON_SIZE = 24;
@@ -63,7 +65,7 @@ const DrawerNavigator = () => {
         drawerInactiveTintColor: "white",
       }}
       //   initialRouteName="Home"
-      useLegacyImplementation
+      // useLegacyImplementation
       drawerContent={(props) => <CustomDrawerContent {...props} />}
     >
       <Drawer.Screen
@@ -84,9 +86,11 @@ const DrawerNavigator = () => {
       />
 
       <Drawer.Screen
+      
         name="Track Order"
         component={TrackOrderScreen}
         options={{
+          headerShown: false,
           drawerIcon: ({ focused, size }) => (
             <MapPinIcon
               name="bicycle"
@@ -100,7 +104,6 @@ const DrawerNavigator = () => {
 
       <Drawer.Screen
         name="Your Orders"
-        
         component={OrdersScreen}
         options={{
           headerShown: false,
@@ -114,7 +117,7 @@ const DrawerNavigator = () => {
           ),
         }}
       />
- <Drawer.Screen
+      <Drawer.Screen
         name="Location"
         component={LocationNavigator}
         options={{
@@ -211,21 +214,25 @@ const DrawerNavigator = () => {
 
 function CustomDrawerContent(props) {
   const { login, logout, user } = AuthDataContext();
+  const dispatch = useDispatch();
+
   console.log("drawer");
   console.log(user.email);
 
   const navigation = useNavigation();
   const handleLogout = () => {
-    auth
-      .signOut()
-      .then(() => {
-        // Sign-out successful.
-        console.log("Sign-out successful.");
-      })
-      .catch((error) => {
-        // An error happened.
-        console.error("Error during sign-out:", error);
-      });
+    dispatch(clearBasket());
+    logout();
+    // auth
+    //   .signOut()
+    //   .then(() => {
+    //     // Sign-out successful.
+    //     console.log("Sign-out successful.");
+    //   })
+    //   .catch((error) => {
+    //     // An error happened.
+    //     console.error("Error during sign-out:", error);
+    //   });
   };
 
   return (
@@ -251,14 +258,16 @@ function CustomDrawerContent(props) {
         <View className="mx-4 mb-5 flex-row space-x-2">
           <Image
             source={{
-              uri: "https://cdnn21.img.ria.ru/images/07e5/05/14/1733173627_0:52:3071:1780_1920x0_80_0_0_4c00a7025448352e94166e2c65fb05d0.jpg",
+              uri: "https://firebasestorage.googleapis.com/v0/b/test-client-app-ff5fa.appspot.com/o/images%2FScreenshot%202023-09-02%20at%2021.41.43.png?alt=media&token=11aeac0b-2bb9-42d2-91d7-3acbd1e6e78d",
             }}
             className="h-10 w-10 rounded-xl"
           />
-          <View>
-            <Text className="text-white font-bold">{user.email}</Text>
-            <Text className="text-white">View your profile</Text>
-          </View>
+          <TouchableOpacity onPress={()=> {navigation.navigate('Setting')}}>
+            <View>
+              <Text className="text-white font-bold">{user.email}</Text>
+              <Text className="text-white">View your profile</Text>
+            </View>
+          </TouchableOpacity>
         </View>
         <DrawerItemList {...props} />
       </View>

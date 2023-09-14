@@ -40,6 +40,7 @@ export default function AuthWrapper({ children }) {
               uid: user.uid,
               displayName: user.displayName,
               isAuthenticated: true,
+              geoAddress: [],
               ...userDBData,
             });
           }

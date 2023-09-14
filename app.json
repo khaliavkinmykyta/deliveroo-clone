@@ -21,10 +21,17 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.khaliavkin.deliverooclone"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "d59a1232-73bb-4073-8d6d-6d0248941efc"
+      }
+    },
+    "owner": "khaliavkin"
   }
 }

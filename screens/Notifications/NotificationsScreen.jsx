@@ -1,219 +1,231 @@
+import { useState, useEffect, useRef } from "react";
 import {
-  View,
   Text,
-  SafeAreaView,
-  TextInput,
+  View,
   Button,
-  TouchableOpacity,
-  StyleSheet,
+  Platform,
+  Image,
+  TouchableWithoutFeedback,
 } from "react-native";
-import React, { useState } from "react";
-import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
-import MapView, { Marker } from "react-native-maps";
-import { AuthDataContext } from "../../hooks/AuthWrapper";
-import { db } from "../../firebase";
-import {
-  collection,
-  getDocs,
-  query,
-  updateDoc,
-  where,
-} from "firebase/firestore";
-import { ChevronLeftIcon } from "react-native-heroicons/outline";
-import { useNavigation } from "@react-navigation/native";
+import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import OpenDrawer from "../../components/Buttons/OpenDrawer";
 import BasketIcon from "../../components/Basket/BasketIcon";
+import { useNavigation } from "@react-navigation/native";
+import { Bars3CenterLeftIcon } from "react-native-heroicons/outline";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-const initialLondonLocation = {
-  latitude: 51.5074, // Широта Лондона
-  longitude: -0.1278, // Долгота Лондона
-};
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 
-const NotificationsScreen = () => {
-  const { user, updateUser } = AuthDataContext();
-  const [selectedLocation, setSelectedLocation] = useState(
-    initialLondonLocation
-  );
-  const [geoAddress, setGeoAddress] = useState();
-  const [floor, setFloor] = useState();
-  const [apartment, setApartment] = useState();
-  const [addInfo, setAddInfo] = useState();
-
-  const writeData = () => {
-    const usersCollection = collection(db, "clients");
-    const q = query(usersCollection, where("id", "==", user.uid));
-
-    getDocs(q)
-      .then((querySnapshot) => {
-        if (querySnapshot.empty) {
-          console.log("User not found");
-        } else {
-          querySnapshot.forEach((doc) => {
-            const userDocRef = doc.ref;
-            const currentGeoAddress = doc.data().geoAddress || [];
-            console.log(currentGeoAddress);
-            const newAddress = {
-              ...geoAddress,
-              floor,
-              apartment,
-              addInfo,
-            };
-            const updatedGeoAddress = [...currentGeoAddress, newAddress];
-
-            updateDoc(userDocRef, { geoAddress: updatedGeoAddress })
-              .then(() => {
-                console.log("User data updated successfully");
-                        const updatedUser = {
-              ...user,
-              geoAddress: updatedGeoAddress
-            };
-            updateUser(updatedUser);
-              })
-              .catch((error) => {
-                console.error("Error updating user data:", error);
-              });
-          });
-        }
-      })
-      .catch((error) => {
-        console.error("Error searching user:", error);
-      });
-  };
+export default function NotificationsScreen() {
   const navigation = useNavigation();
 
-  const openSetting = () => {
-    navigation.navigate("Setting");
+  const openDrawer = () => {
+    navigation.openDrawer();
   };
-  return (
-    <SafeAreaView style={{ flex: 1 }} className="bg-white">
-      {/* HEADER */}
-      <View className="bg-white flex-row justify-between items-center px-2 mb-2">
-        {/* Drawer Icon */}
-        <TouchableOpacity
-          onPress={openSetting}
-          className=" border-[#cecfd2] p-1"
-          style={{
-            borderColor: "#cecfd2",
-            borderWidth: 1,
-            borderRadius: "10%",
-          }}
-        >
-          <ChevronLeftIcon color="#cecfd2" />
-        </TouchableOpacity>
+  const [expoPushToken, setExpoPushToken] = useState("");
+  const [notification, setNotification] = useState(false);
+  const notificationListener = useRef();
+  const responseListener = useRef();
 
-        <Text className="text-xl font-bold text-black">Add address</Text>
+  useEffect(() => {
+    registerForPushNotificationsAsync().then((token) =>
+      setExpoPushToken(token)
+    );
+
+    notificationListener.current =
+      Notifications.addNotificationReceivedListener((notification) => {
+        setNotification(notification);
+      });
+
+    responseListener.current =
+      Notifications.addNotificationResponseReceivedListener((response) => {
+        console.log(response);
+      });
+
+    return () => {
+      Notifications.removeNotificationSubscription(
+        notificationListener.current
+      );
+      Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
+
+  return (
+    <SafeAreaView className="bg-[#fe6c44] flex-1  ">
+      <View className="flex-row justify-between items-center px-2 mb-2">
+        {/* Back Icon */}
+        <View>
+          <TouchableWithoutFeedback onPress={openDrawer}>
+            <View className="p-1 border border-white rounded-xl">
+              <Bars3CenterLeftIcon color="white" size={26} />
+            </View>
+          </TouchableWithoutFeedback>
+        </View>
+        <Text className="text-xl font-bold text-black">Notifications</Text>
         <BasketIcon />
       </View>
-      <View className="mx-4">
-        <GooglePlacesAutocomplete
-          placeholder="Type a place"
-          onPress={(data, details = null) => {
-            setGeoAddress({
-              latitude: details.geometry.location.lat,
-              longitude: details.geometry.location.lng,
-              address: data.description,
-            });
-            setSelectedLocation({
-              latitude: details.geometry.location.lat,
-              longitude: details.geometry.location.lng,
-            });
+      <View className="mx-4 flex-1 justify-evenly">
+        <View className="items-center gap-1">
+          <Image
+            source={{
+              uri: "https://firebasestorage.googleapis.com/v0/b/test-client-app-ff5fa.appspot.com/o/images%2Fgirl.png?alt=media&token=ddab01cb-480a-4021-ba5f-217ec4e36326",
+            }}
+            className="h-20 w-20 rounded-xl relative mr-2"
+          />
+          <Text className="text-white text-center text-lg font-semibold">
+            This is an example of the kind of notification your customers can
+            receive when you have a promotion!
+          </Text>
 
-            // const updatedUser = {
-            //   ...user,
-            //   address: data.description,
-            //   latitude: details.geometry.location.lat,
-            //   longitude: details.geometry.location.lng,
-            // };
-            // updateUser(updatedUser);
+          <TouchableOpacity
+            className="bg-white text-white items-center justify-center m-2 rounded-full border border-white"
+            onPress={async () => {
+              await promotionPushNotification();
+            }}
+          >
+            <Text className=" text-center font-bold text-xl px-4 py-2">
+              Get the notification
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <View className="items-center gap-1">
+          <Image
+            source={{
+              uri: "https://firebasestorage.googleapis.com/v0/b/test-client-app-ff5fa.appspot.com/o/images%2FScreenshot%202023-09-02%20at%2021.41.43.png?alt=media&token=11aeac0b-2bb9-42d2-91d7-3acbd1e6e78d",
+            }}
+            className="h-20 w-20 rounded-xl relative mr-2"
+          />
+          <Text className="text-white text-center text-lg font-semibold">
+            This is, again, an example of a courier picking up an order from
+            your restaurant and heading to the customer.
+          </Text>
 
-            // writeData(geoAddress);
-          }}
-          query={{
-            key: "",
-            components: "country:uk",
-            language: "en",
-          }}
-          minLength={0}
-          suppressDefaultStyles={false}
-          styles={{
-            container: {
-              flex: 0,
-            },
-            textInput: styles.textInput,
-          }}
-          enablePoweredByContainer={false}
-          autoFocus={false}
-          returnKeyType={"default"}
-          fetchDetails={true}
-          onFail={(error) => console.log(error)}
-          onNotFound={() => console.log("no results")}
-          listEmptyComponent={() => (
-            <View style={{ flex: 1 }}>
-              <Text>No results were found</Text>
-            </View>
-          )}
-        />
-        <TextInput
-          placeholder="Add floor"
-          style={styles.textInput}
-          value={floor}
-          onChangeText={setFloor}
-        />
-        <TextInput
-          placeholder="Add apartment"
-          style={styles.textInput}
-          value={apartment}
-          onChangeText={setApartment}
-        />
-        <TextInput
-          placeholder="Add additional info"
-          style={styles.textInput}
-          value={addInfo}
-          onChangeText={setAddInfo}
-        />
+          <TouchableOpacity
+            className="bg-white text-white items-center justify-center m-2 rounded-full border border-white"
+            onPress={async () => {
+              await courierPickedUpPushNotification();
+            }}
+          >
+            <Text className=" text-center font-bold text-xl px-4 py-2">
+              Get the notification
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <View className="items-center gap-1">
+          <Image
+            source={{
+              uri: "https://firebasestorage.googleapis.com/v0/b/test-client-app-ff5fa.appspot.com/o/images%2Fcour.png?alt=media&token=3282b467-ce2b-447e-8654-1a0bcebe1b10",
+            }}
+            className="h-20 w-20 rounded-xl relative mr-2"
+          />
+          <Text className="text-white text-center text-lg font-semibold">
+            For example, a customer hasn't placed an order in a long time.
+            Remind yourself!
+          </Text>
 
-        <TouchableOpacity
-          onPress={writeData}
-          className="bg-[#fe6c44] text-white rounded-xl items-center justify-center w-1/2 mx-auto my-5"
-        >
-          <Text className="text-white font-bold text-md p-5">Add address</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          className="bg-white border-[#fe6c44]  border text-white rounded-xl items-center justify-center w-1/2 mx-auto my-5"
-        >
-          <Text className="text-[#fe6c44]  font-bold text-md py-5 px-2 text-center">Your previous address</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            className="bg-white text-white items-center justify-center m-2 rounded-full border border-white"
+            onPress={async () => {
+              await missYouPushNotification();
+            }}
+          >
+            <Text className=" text-center font-bold text-xl px-4 py-2">
+              Get the notification
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
-      <MapView
-        style={{ flex: 1 }}
-        region={{
-          latitude: selectedLocation.latitude,
-          longitude: selectedLocation.longitude,
-          latitudeDelta: 0.1,
-          longitudeDelta: 0.1,
-        }}
-      >
-        <Marker
-          coordinate={{
-            latitude: selectedLocation.latitude,
-            longitude: selectedLocation.longitude,
-          }}
-        />
-      </MapView>
     </SafeAreaView>
   );
-};
-const styles = StyleSheet.create({
-  textInput: {
-    backgroundColor: "#FFFFFF",
-    height: 44,
-    borderRadius: 25,
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-    fontSize: 15,
-    marginVertical: 5,
-    borderColor: "#d4d4d8", // Серая обводка
-    borderWidth: 1, // Толщина обводки
-  },
-});
-export default NotificationsScreen;
+}
+
+async function schedulePushNotification() {
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "You've got mail! 📬",
+      body: "Here is the notification body",
+      data: { data: "goes here" },
+    },
+    trigger: { seconds: 1 },
+  });
+}
+
+async function promotionPushNotification() {
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "Today only! 🍔",
+      body: "20% off all burgers! \nOrder now! ",
+      data: { data: "goes here" },
+    },
+    trigger: { seconds: 1 },
+  });
+}
+
+async function courierPickedUpPushNotification() {
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "Courier's on the way! 🛵",
+      body: "The courier has already picked up the order!",
+      data: { data: "goes here" },
+    },
+    trigger: { seconds: 1 },
+  });
+}
+
+async function missYouPushNotification() {
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "Are you hungry? 😋",
+      body: "Make an order and get free shipping!",
+      data: { data: "goes here" },
+    },
+    trigger: { seconds: 1 },
+  });
+}
+
+async function registerForPushNotificationsAsync() {
+  let token;
+
+  if (Platform.OS === "android") {
+    await Notifications.setNotificationChannelAsync("default", {
+      name: "default",
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: "#FF231F7C",
+    });
+  }
+
+  if (Device.isDevice) {
+    const { status: existingStatus } =
+      await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== "granted") {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== "granted") {
+      alert("Failed to get push token for push notification!");
+      return;
+    }
+    // Learn more about projectId:
+    // https://docs.expo.dev/push-notifications/push-notifications-setup/#configure-projectid
+    token = (
+      await Notifications.getExpoPushTokenAsync({
+        projectId: "d59a1232-73bb-4073-8d6d-6d0248941efc",
+      })
+    ).data;
+    console.log(token);
+  } else {
+    alert("Must use physical device for Push Notifications");
+  }
+
+  return token;
+}

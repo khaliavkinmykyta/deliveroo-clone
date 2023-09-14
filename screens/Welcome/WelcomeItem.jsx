@@ -19,7 +19,7 @@ const WelcomeItem = ({ item }) => {
         source={{
           uri: item.img,
         }}
-        style={ { width: imageWidth, resizeMode: "contain", marginHorizontal: 16 }} className=' h-72'
+        style={ { width: imageWidth, resizeMode: "contain", marginHorizontal: 16, }} className=' h-48'
       />
 
       {/* TEXT */}

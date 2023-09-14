@@ -1,89 +1,112 @@
-import { View, Text } from "react-native";
-import React, { useEffect, useLayoutEffect, useState } from "react";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { View, Text, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+import React, { useCallback, useEffect, useState } from "react";
+import { useRoute } from "@react-navigation/native";
 import CategoriesList from "../../components/CategoriesList";
 import FoodRow from "../../components/FoodRow";
 
-import { collection, doc, getDocs, onSnapshot } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { db } from "../../firebase";
 import BasketIcon from "../../components/Basket/BasketIcon";
 import BackButton from "../../components/BackButton";
-import { ScrollView } from "react-native-gesture-handler";
+import LoadingFood from "../../components/LoadingFood";
 
 const FoodCategoryScreen = () => {
-  const navigation = useNavigation();
   const [foodItems, setFoodItems] = React.useState([]);
+  const [newNameCat, setNewNameCat] = useState("");
+  const [loading, setLoading] = useState(false);
   const route = useRoute();
 
-  const { imgUrl, name, docName } = route.params;
+  const { docName } = route.params;
 
+  const fetchFoodItems = useCallback(
+    async (categoryDocName) => {
+      setLoading(true);
 
+      const categoryDocRef = doc(db, "categories", categoryDocName);
+      const foodItemsCollectionRef = collection(categoryDocRef, "foodItem");
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerShown: false,
-    });
-  }, []);
-
-  useEffect(() => {
-    console.log('hi')
-    // const categoryId = name.toLowerCase();
-    // const categoryDocRef = doc(db, "categories", categoryId);
-        const categoryDocRef = doc(db, "categories", docName);
-
-    const foodItemsCollectionRef = collection(categoryDocRef, "foodItem");
-
-    getDocs(foodItemsCollectionRef)
-      .then((querySnapshot) => {
+      try {
+        const querySnapshot = await getDocs(foodItemsCollectionRef);
         const foodItemsData = [];
 
         querySnapshot.forEach((foodItemDoc) => {
           const foodItemData = foodItemDoc.data();
-
-
-          const foodItem = {
-            displaySequence: foodItemData.displaySequence,
-            docName: foodItemDoc.id,
-            categoryId: foodItemData.categoryId,
-
-            name: foodItemData.name,
-            description: foodItemData.description,
-            price: foodItemData.price,
-            img: foodItemData.img,
-          };
-          foodItemsData.push(foodItem);
+          (foodItemData.docName = foodItemDoc.id),
+            foodItemsData.push(foodItemData);
         });
-        console.log("FoodCatScren - maybe this is");
+
         setFoodItems(foodItemsData);
-      })
-      .catch((error) => {
+        setLoading(false);
+      } catch (error) {
         console.error("Error fetching food items:", error);
-      });
+        setLoading(false);
+      }
+    },
+    [setLoading, setFoodItems]
+  );
+
+  // FETCH items
+  useEffect(() => {
+    fetchFoodItems(docName);
+  }, [docName, fetchFoodItems]);
+
+  // FETCH name
+  useEffect(() => {
+    const getNameOfCategory = async () => {
+      const categoryDocRef = doc(db, "categories", docName);
+
+      try {
+        const categoryDocSnapshot = await getDoc(categoryDocRef);
+
+        if (categoryDocSnapshot.exists()) {
+          const categoryName = categoryDocSnapshot.data().name;
+          console.log("Category name is:", categoryName);
+          setNewNameCat(categoryName);
+        } else {
+          console.log("Category document does not exist");
+        }
+      } catch (error) {
+        console.error("Error fetching category data:", error);
+      }
+    };
+
+    getNameOfCategory();
   }, [docName]);
 
-  return (
-    <SafeAreaView className="bg-white flex-1">
-      <ScrollView>
-        {/* HEADER */}
-        <View className="flex-row justify-between items-center px-2 ">
-          <BackButton />
-          <Text className="text-xl font-bold text-black">Details</Text>
-          <BasketIcon />
+  return !loading ? (
+    <SafeAreaView className="bg-white flex-1 px-4 py-2">
+      {/* HEADER */}
+      <View className="flex-row justify-between items-center">
+        <BackButton />
+        <Text className="text-xl font-bold text-black">Details</Text>
+        <BasketIcon />
+      </View>
+
+      {/* CategoriesList */}
+      <CategoriesList />
+
+      {/* NAME OF CATEGORY */}
+      <Text className="font-bold text-2xl my-2 text-center ">{newNameCat}</Text>
+
+      {/* FLAT LIST items */}
+      {foodItems.length > 0 ? (
+        <FlatList
+          data={foodItems.sort((a, b) => a.displaySequence - b.displaySequence)}
+          keyExtractor={(item) => item.docName}
+          renderItem={({ item }) => <FoodRow item={item} key={item.docName} />}
+        />
+      ) : (
+        <View className="mx-4 justify-center items-center mt-10 bg-[#fe6c44] p-1 rounded-xl">
+          <Text className="text-3xl text-center text-white font-medium ">
+            We don't have any food at this category, sorry!
+          </Text>
         </View>
-
-        {/* CategoriesList */}
-        <CategoriesList/>
-
-        {/* NAME OF CATEGORY */}
-        <Text className="font-bold text-2xl my-2 text-center">{name}</Text>
-
-        {/* Mapping current foodItem from selected category */}
-        {foodItems.map((foodItem) => (
-          <FoodRow item={foodItem} key={foodItem.docName} test={foodItem.uid} />
-        ))}
-      </ScrollView>
+      )}
     </SafeAreaView>
+  ) : (
+    <LoadingFood />
   );
 };
 

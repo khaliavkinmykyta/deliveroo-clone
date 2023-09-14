@@ -82,7 +82,7 @@ const NewPassword = () => {
           style={{
             borderColor: "#cecfd2",
             borderWidth: 1,
-            borderRadius: "10%",
+            borderRadius: 10,
           }}
         >
           <ChevronLeftIcon color="#cecfd2" />

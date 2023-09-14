@@ -4,18 +4,13 @@ import {
   Image,
   TextInput,
   TouchableOpacity,
-  SafeAreaView,
   TouchableWithoutFeedback,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import {
-  Bars3CenterLeftIcon,
-  PlusIcon,
-  UserIcon,
-} from "react-native-heroicons/outline";
+
 import { ScrollView } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { GifIcon, GiftIcon } from "react-native-heroicons/solid";
+import { GiftIcon } from "react-native-heroicons/solid";
 import { db } from "../../firebase";
 import {
   collection,
@@ -26,6 +21,9 @@ import {
   addDoc,
 } from "firebase/firestore";
 import { AuthDataContext } from "../../hooks/AuthWrapper";
+import OpenDrawer from "../../components/Buttons/OpenDrawer";
+import { SafeAreaView } from "react-native-safe-area-context";
+import BasketIcon from "../../components/Basket/BasketIcon";
 
 const CouponsScreen = () => {
   const navigation = useNavigation();
@@ -169,32 +167,23 @@ const CouponsScreen = () => {
   };
 
   return (
-    <SafeAreaView className="bg-white p-3 ">
+    <SafeAreaView className="bg-white  flex-1 py-2 px-4 ">
       <ScrollView>
         {/* CUSTOM HEADER Drawer + Name + Logo */}
-        <View className="flex-row justify-between items-center px-2">
+        <View className="flex-row justify-between items-center">
           {/* Drawer Icon */}
-          <TouchableWithoutFeedback onPress={openDrawer}>
-            <View className="p-1 border border-zinc-500 rounded-xl">
-              <Bars3CenterLeftIcon color="#71717a" size={26} />
-            </View>
-          </TouchableWithoutFeedback>
+         <OpenDrawer/>
 
           {/* Name Screen */}
           <Text className="text-xl font-bold text-black">Coupons</Text>
 
           {/* Logo */}
-          <Image
-            source={{
-              uri: "https://cdn.dribbble.com/users/5462907/screenshots/11960844/5.png",
-            }}
-            className="h-10 w-10 rounded-xl"
-          />
+          <BasketIcon/>
         </View>
 
         {/* PROMO CODE BODY */}
-        <View className="flex-row justify-between items-center px-2">
-          <View className="mx-4 gap-y-5 mt-10">
+        <View className="flex-row justify-between items-center">
+          <View className="gap-y-5 mt-10">
             {/* CHECK PROMO CODE FOR CURRENT USER */}
             {myPromocode && myPromocode.length > 0 ? (
               myPromocode.map((promoCode, index) => (

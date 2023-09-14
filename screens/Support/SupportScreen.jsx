@@ -1,16 +1,15 @@
 import {
   View,
   Text,
-  SafeAreaView,
   Image,
   ScrollView,
   TouchableOpacity,
   Linking,
 } from "react-native";
 import React from "react";
-import BackButton from "../../components/BackButton";
 import BasketIcon from "../../components/Basket/BasketIcon";
-import { PhoneIcon } from "react-native-heroicons/outline";
+import OpenDrawer from "../../components/Buttons/OpenDrawer";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const SupportScreen = () => {
   const openLinkWhatsapp = async () => {
@@ -34,10 +33,10 @@ const SupportScreen = () => {
     }
   };
   return (
-    <SafeAreaView className="bg-white flex-1">
+    <SafeAreaView className="bg-white flex-1 px-4 py-2">
       {/* HEADER */}
-      <View className="bg-white flex-row justify-between items-center px-2">
-        <BackButton />
+      <View className="bg-white flex-row justify-between items-center">
+        <OpenDrawer />
 
         <Text className="text-xl font-bold text-black">Details</Text>
         <BasketIcon />
@@ -45,7 +44,7 @@ const SupportScreen = () => {
 
       <ScrollView>
         {/* BODY */}
-        <View className="px-4">
+        <View className="">
           {/* BODY H1 */}
           <Text className="text-2xl text-center my-10">
             Our support works from 08:00 to 20:00.
@@ -53,8 +52,7 @@ const SupportScreen = () => {
 
           {/* PHONE */}
           <View className="flex-row justify-center items-center mb-10">
-            {/* <PhoneIcon size={26} color={"black"} /> */}
-            <Text className="font-bold text-lg ml-3">+380 66 48 38 010</Text>
+            <Text className="font-bold text-lg ml-3">+44 7384-314-947</Text>
           </View>
 
           {/* CHANNEL */}
@@ -64,7 +62,7 @@ const SupportScreen = () => {
           </Text>
 
           {/* CHANNEL ITEM */}
-          <View className="items-center p-4 my-3 border border-zinc-200">
+          <View className="bg-gray-100 rounded-xl items-center p-4 my-3 border border-zinc-200">
             <Image
               source={{
                 uri: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Facebook_Logo_%282019%29.png/1024px-Facebook_Logo_%282019%29.png",
@@ -82,7 +80,7 @@ const SupportScreen = () => {
           </View>
 
           {/* CHANNEL ITEM */}
-          <View className="items-center p-4 my-3 border border-zinc-200">
+          <View className="bg-gray-100 rounded-xl items-center p-4 my-3 border border-zinc-200">
             <Image
               source={{
                 uri: "https://png.pngtree.com/png-vector/20221018/ourmid/pngtree-whatsapp-mobile-software-icon-png-image_6315991.png",

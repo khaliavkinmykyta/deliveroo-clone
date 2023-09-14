@@ -1,15 +1,12 @@
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { getDocs, limit, query } from "firebase/firestore";
 import { db } from "../../../firebase";
 import { collection } from "firebase/firestore";
 import PopularFoodItem from "./PopularFoodItem";
 import { useNavigation } from "@react-navigation/native";
-import {
-  PlusCircleIcon,
-} from "react-native-heroicons/outline";
-import { v4 as uuidv4 } from 'uuid';
-
+import { PlusCircleIcon } from "react-native-heroicons/outline";
+import { v4 as uuidv4 } from "uuid";
 
 const PopularFoodList = () => {
   const [popularFoodItems, setPopularFoodItems] = useState([]);
@@ -19,26 +16,22 @@ const PopularFoodList = () => {
     navigation.navigate("PopularScreenFood");
   };
 
-  // FETCH POPULAR FOOD
-  useEffect(() => {
-    const popularFoodRef = collection(db, "popularFoodItem");
+  const fetchPopularFood = useCallback(async () => {
+    try {
+      const popularFoodRef = collection(db, "popularFoodItem");
+      const q = query(popularFoodRef, limit(5));
+      const querySnapshot = await getDocs(q);
 
-    // Limit the query to 5 elements
-    const q = query(popularFoodRef, limit(5));
-
-    getDocs(q)
-      .then((querySnapshot) => {
-        console.log("Popular food list USE EFFECT");
-        const popularFoodData = [];
-        querySnapshot.forEach((doc) => {
-          popularFoodData.push({ id: doc.id, ...doc.data() });
-        });
-        setPopularFoodItems(popularFoodData);
-      })
-      .catch((error) => {
-        console.error("Error fetching popular food items:", error);
-      });
+      const popularFoodData = querySnapshot.docs.map((doc) => doc.data());
+      setPopularFoodItems(popularFoodData);
+    } catch (error) {
+      console.error("Error fetching popular food items:", error);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchPopularFood();
+  }, [fetchPopularFood]);
 
   return (
     <View className="px-2">

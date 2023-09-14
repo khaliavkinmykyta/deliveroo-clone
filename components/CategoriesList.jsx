@@ -1,54 +1,68 @@
 import { View, ScrollView } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import MenuCard from "./MenuCard";
 import { db } from "../firebase";
-import { getDocs } from "firebase/firestore";
+import { getDocs, onSnapshot } from "firebase/firestore";
 import { collection } from "firebase/firestore";
 
-const CategoriesList = ({ onCategoryPress }) => {
+const CategoriesList = () => {
   const [cat, setCat] = useState([]);
 
-  useEffect(() => {
-    const categoriesRef = collection(db, "categories");
-    getDocs(categoriesRef)
-      .then((snapshot) => {
-        const categories = [];
-        snapshot.forEach((doc) => {
-          // const category = doc.data();
-          // categories.push(category);
-          const category = doc.data();
-          // Добавляем в объект категории поле id с именем документа
-          category.id = doc.id;
-          categories.push(category);
-        });
-        setCat(categories);
-      })
-      .catch((error) => {
-        console.error("Ошибка при получении категорий:", error);
+  const fetchCategories = useCallback(async () => {
+    try {
+      const categoriesRef = collection(db, "categories");
+      const querySnapshot = await getDocs(categoriesRef);
+
+      const categories = querySnapshot.docs.map((doc) => {
+        const data = doc.data();
+        return { ...data, id: doc.id };
       });
+
+      setCat(categories);
+
+      // Создаем подписку на изменения и возвращаем функцию отписки
+      const unsubscribe = onSnapshot(categoriesRef, (snapshot) => {
+        const updatedCategories = snapshot.docs.map((doc) => {
+          const data = doc.data();
+          return { ...data, id: doc.id };
+        });
+        setCat(updatedCategories);
+      });
+
+      return unsubscribe; // Возвращаем функцию отписки
+    } catch (error) {
+      console.error("Error when receiving categories:", error);
+    }
   }, []);
+
+  useEffect(() => {
+    console.log("EU cat.list");
+
+    let unsubscribe = fetchCategories();
+
+    return () => {
+      if (unsubscribe && typeof unsubscribe === "function") {
+        unsubscribe();
+      }
+    };
+  }, [fetchCategories]);
 
   return (
     // HORIZONTAL Scroll View Setting
-    <View>
+    <View className="">
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{
-          paddingHorizontal: 10,
           paddingTop: 10,
         }}
       >
         {/* Mapping our categories to render each item in MenuCard */}
-        {cat?.map((item) => (
-          <MenuCard
-            imgUrl={item.img}
-            docName={item.id}
-            name={item.name}
-            key={item.id}
-            // onPress={() => onCategoryPress(item.name)}
-          />
-        ))}
+        {cat
+          ?.sort((a, b) => a.displaySequence - b.displaySequence)
+          .map((item) => (
+            <MenuCard item={item} key={item.id} />
+          ))}
       </ScrollView>
     </View>
   );
