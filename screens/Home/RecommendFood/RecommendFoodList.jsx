@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
-import { getDocs, limit, query } from "firebase/firestore";
+import { getDocs, limit, onSnapshot, query } from "firebase/firestore";
 import { db } from "../../../firebase";
 import { collection } from "firebase/firestore";
 import RecommendFoodItem from "./RecommendFoodItem";
@@ -13,20 +13,31 @@ const RecommendFoodList = () => {
   const navigation = useNavigation();
 
   const fetchRecommendFood = useCallback(async () => {
+    console.log("fetchRecommendFood promotion list");
+
     try {
       const recommendFoodRef = collection(db, "recommendFoodItem");
       const q = query(recommendFoodRef, limit(5));
-      const querySnapshot = await getDocs(q);
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const recommendFoodData = querySnapshot.docs.map((doc) => doc.data());
+        setRecommendFoodItems(recommendFoodData);
+      });
 
-      const recommendFoodData = querySnapshot.docs.map((doc) => doc.data());
-      setRecommendFoodItems(recommendFoodData);
+      return unsubscribe; // Возвращаем функцию отписки
     } catch (error) {
-      console.error("Error fetching Recommend food items:", error);
+      console.error("Error fetching rec food items:", error);
     }
   }, []);
 
   useEffect(() => {
-    fetchRecommendFood();
+    "UE rec list";
+
+    let unsubscribe = fetchRecommendFood();
+    return () => {
+      if (unsubscribe && typeof unsubscribe === "function") {
+        unsubscribe();
+      }
+    };
   }, [fetchRecommendFood]);
 
   const goToFoodCategory = () => {

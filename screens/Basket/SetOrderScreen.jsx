@@ -1,6 +1,9 @@
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, Keyboard } from "react-native";
 import React, { useEffect, useState } from "react";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import {
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+} from "react-native-gesture-handler";
 
 import {
   InformationCircleIcon,
@@ -35,7 +38,6 @@ const SetOrderScreen = () => {
   const navigation = useNavigation();
   const basketItems = useSelector(selectBasketItems);
   const total = useSelector(selectBasketTotal);
-  const totalQuantity = useSelector(selectBasketTotalQuantity);
   const [noticeOrder, setNoticeOrder] = useState("");
   const { user } = AuthDataContext();
   const dispatch = useDispatch();
@@ -89,8 +91,10 @@ const SetOrderScreen = () => {
 
   return (
     // SAFE AREA CONTAINER
+
     <SafeAreaView className="bg-white flex-1 px-4 py-2">
       {/* HEADER AND FLAT*/}
+
       <View className="">
         {/* HEADER */}
         <View className="flex-row justify-between items-center">
@@ -105,148 +109,160 @@ const SetOrderScreen = () => {
         </View>
       </View>
       {/* INFO ORDER BLOCK */}
-      <ScrollView className="py-5">
-        <View className="space-y-3 mb-10 px-2">
-          {/* Your name */}
-          <View className="bg-zinc-100 rounded-xl p-2 shadow-sm  shadow-zinc-500">
-            <Text className="font-bold">Your name</Text>
-            <TouchableOpacity onPress={() => navigation.navigate("Setting")}>
-              <View className="flex-row mt-2 items-center">
-                <InformationCircleIcon name="user" size={28} color="#fe6c44" />
-                <View className="ml-2 border border-zinc-300 flex-1 rounded-xl p-2">
-                  <Text>
-                    {user.displayName ? user.displayName : "Set your name"}
-                  </Text>
+      <ScrollView className="py-5 my-1">
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View className="space-y-3 mb-10 px-2">
+            {/* Your name */}
+            <View className="bg-zinc-100 rounded-xl p-2 shadow-sm  shadow-zinc-500">
+              <Text className="font-bold">Your name</Text>
+              <TouchableOpacity onPress={() => navigation.navigate("Setting")}>
+                <View className="flex-row mt-2 items-center">
+                  <InformationCircleIcon
+                    name="user"
+                    size={28}
+                    color="#fe6c44"
+                  />
+                  <View className="ml-2 border border-zinc-300 flex-1 rounded-xl p-2">
+                    <Text>
+                      {user.displayName ? user.displayName : "Set your name"}
+                    </Text>
+                  </View>
                 </View>
-              </View>
-            </TouchableOpacity>
-          </View>
+              </TouchableOpacity>
+            </View>
 
-          {/* Your phone */}
-          <View className="bg-zinc-100 rounded-xl p-2 shadow-sm  shadow-zinc-500">
-            <Text className="font-bold">Your phone</Text>
-            <TouchableOpacity onPress={() => navigation.navigate("Setting")}>
-              <View className="flex-row mt-2 items-center">
-                <InformationCircleIcon name="user" size={28} color="#fe6c44" />
+            {/* Your phone */}
+            <View className="bg-zinc-100 rounded-xl p-2 shadow-sm  shadow-zinc-500">
+              <Text className="font-bold">Your phone</Text>
+              <TouchableOpacity onPress={() => navigation.navigate("Setting")}>
+                <View className="flex-row mt-2 items-center">
+                  <InformationCircleIcon
+                    name="user"
+                    size={28}
+                    color="#fe6c44"
+                  />
 
-                <View className="ml-2 border border-zinc-300 flex-1 rounded-xl p-2">
-                  <Text>{user.mobile ? user.mobile : "Set your mobile"}</Text>
+                  <View className="ml-2 border border-zinc-300 flex-1 rounded-xl p-2">
+                    <Text>{user.mobile ? user.mobile : "Set your mobile"}</Text>
+                  </View>
                 </View>
-              </View>
-            </TouchableOpacity>
-          </View>
+              </TouchableOpacity>
+            </View>
 
-          {/* Your address */}
-          <View className="bg-zinc-100 rounded-xl p-2 shadow-sm  shadow-zinc-500">
-            <Text className="font-bold">Your address</Text>
-            <View className="flex-row items-center mt-2">
+            {/* Your address */}
+            <View className="bg-zinc-100 rounded-xl p-2 shadow-sm  shadow-zinc-500">
+              <Text className="font-bold">Your address</Text>
               <TouchableOpacity onPress={() => navigation.navigate("Location")}>
                 <View className="flex-row items-center space-x-1 py-2">
                   <MapPinIcon color="#fe6c44" size={20} />
-                  <Text className="">
-                    {user && user.geoAddress && user.geoAddress.length !== 0
-                      ? user.geoAddress[user.geoAddress.length - 1].address
-                      : "Set location"}
+                  <View className="ml-2 border border-zinc-300 flex-1 rounded-xl p-2">
+                    <Text className="flex-1">
+                      {user && user.geoAddress && user.geoAddress.length !== 0
+                        ? user.geoAddress[user.geoAddress.length - 1].address 
+                        : "Set location"}
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+
+              {/* NOTICE ADDRESS */}
+              <View className="mt-2">
+                <Text className="font-bold">Additional information</Text>
+                <View className="flex-row items-center mt-2">
+                  <PaperClipIcon name="user" size={20} color="#fe6c44" />
+
+                  <Text className="p-2">
+                    {user &&
+                    user.geoAddress.length !== 0 &&
+                    user.geoAddress[user.geoAddress.length - 1].floor.trim() !==
+                      ""
+                      ? "Floor: " +
+                        user.geoAddress[user.geoAddress.length - 1].floor +
+                        "."
+                      : ""}
+
+                    {user &&
+                    user.geoAddress.length !== 0 &&
+                    user.geoAddress[
+                      user.geoAddress.length - 1
+                    ].apartment.trim() !== ""
+                      ? "\nApartment: " +
+                        user.geoAddress[user.geoAddress.length - 1].apartment +
+                        ". "
+                      : ""}
+
+                    {user &&
+                    user.geoAddress.length !== 0 &&
+                    user.geoAddress[
+                      user.geoAddress.length - 1
+                    ].addInfo.trim() !== ""
+                      ? "\nInfo: " +
+                        user.geoAddress[user.geoAddress.length - 1].addInfo +
+                        ". "
+                      : ""}
+                    {user &&
+                    user.geoAddress.length !== 0 &&
+                    user.geoAddress[user.geoAddress.length - 1].addInfo &&
+                    user.geoAddress[user.geoAddress.length - 1].apartment &&
+                    user.geoAddress[user.geoAddress.length - 1].floor
+                      ? ""
+                      : "-"}
+                  </Text>
+                </View>
+              </View>
+
+              {/* CHANGE ADDRESS */}
+              <TouchableOpacity
+                className="bg-[#fe6c44] rounded-xl p-2 my-4 justify-center items-center"
+                onPress={() => navigation.navigate("Location")}
+              >
+                <View>
+                  <Text className="text-white font-semibold ">
+                    Change my location
                   </Text>
                 </View>
               </TouchableOpacity>
             </View>
 
-            {/* NOTICE ADDRESS */}
-            <View className="mt-2">
-              <Text className="font-bold">Additional information</Text>
-              <View className="flex-row items-center mt-2">
-                <PaperClipIcon name="user" size={20} color="#fe6c44" />
+            {/* Your notice about of order */}
+            <View className="bg-zinc-100 rounded-xl p-2 shadow-sm  shadow-zinc-500">
+              <Text className="font-bold">Your notice about of order</Text>
+              <View className="flex-row mt-2 items-center">
+                <PencilIcon name="user" size={20} color="#fe6c44" />
 
-                <Text className="p-2">
-                  {user &&
-                  user.geoAddress.length !== 0 &&
-                  user.geoAddress[user.geoAddress.length - 1].floor.trim() !==
-                    ""
-                    ? "Floor: " +
-                      user.geoAddress[user.geoAddress.length - 1].floor +
-                      "."
-                    : ""}
-
-                  {user &&
-                  user.geoAddress.length !== 0 &&
-                  user.geoAddress[
-                    user.geoAddress.length - 1
-                  ].apartment.trim() !== ""
-                    ? "\nApartment: " +
-                      user.geoAddress[user.geoAddress.length - 1].apartment +
-                      ". "
-                    : ""}
-
-                  {user &&
-                  user.geoAddress.length !== 0 &&
-                  user.geoAddress[user.geoAddress.length - 1].addInfo.trim() !==
-                    ""
-                    ? "\nInfo: " +
-                      user.geoAddress[user.geoAddress.length - 1].addInfo +
-                      ". "
-                    : ""}
-                  {user &&
-                  user.geoAddress.length !== 0 &&
-                  user.geoAddress[user.geoAddress.length - 1].addInfo &&
-                  user.geoAddress[user.geoAddress.length - 1].apartment &&
-                  user.geoAddress[user.geoAddress.length - 1].floor
-                    ? ""
-                    : "-"}
-                </Text>
+                <TextInput
+                  value={noticeOrder}
+                  onChangeText={(text) => setNoticeOrder(text)}
+                  className="ml-2 border border-zinc-300 flex-1 rounded-xl p-2"
+                  placeholder="Type here..."
+                ></TextInput>
               </View>
             </View>
 
-            {/* CHANGE ADDRESS */}
-            <TouchableOpacity
-              className="bg-[#fe6c44] rounded-xl p-2 my-4 justify-center items-center"
-              onPress={() => navigation.navigate("Location")}
-            >
-              <View>
-                <Text className="text-white font-semibold ">
-                  Change my location
+            {/* Your promocode */}
+            <View className="bg-zinc-100 rounded-xl p-2 shadow-sm  shadow-zinc-500">
+              <Text className="font-bold">Your promocode</Text>
+              <View className="flex-row mt-2 items-center">
+                <InformationCircleIcon name="user" size={28} color="#fe6c44" />
+                <Text className="ml-2">Select coupons</Text>
+              </View>
+            </View>
+
+            {/* Your total */}
+            <View className="bg-zinc-100 rounded-xl p-2 shadow-sm  shadow-zinc-500">
+              <Text className="font-bold">Your total</Text>
+              <View className="flex-row mt-2 items-center">
+                <InformationCircleIcon name="user" size={28} color="#fe6c44" />
+
+                <Text className="ml-2 border border-zinc-300 flex-1 rounded-xl p-2 ">
+                  £ {parseFloat(total).toFixed(2)}
                 </Text>
               </View>
-            </TouchableOpacity>
-          </View>
-
-          {/* Your notice about of order */}
-          <View className="bg-zinc-100 rounded-xl p-2 shadow-sm  shadow-zinc-500">
-            <Text className="font-bold">Your notice about of order</Text>
-            <View className="flex-row mt-2 items-center">
-              <PencilIcon name="user" size={20} color="#fe6c44" />
-
-              <TextInput
-                value={noticeOrder}
-                onChangeText={(text) => setNoticeOrder(text)}
-                className="ml-2 border border-zinc-300 flex-1 rounded-xl p-2"
-                placeholder="Type here..."
-              ></TextInput>
             </View>
           </View>
-
-          {/* Your promocode */}
-          <View className="bg-zinc-100 rounded-xl p-2 shadow-sm  shadow-zinc-500">
-            <Text className="font-bold">Your promocode</Text>
-            <View className="flex-row mt-2 items-center">
-              <InformationCircleIcon name="user" size={28} color="#fe6c44" />
-              <Text className="ml-2">Select coupons</Text>
-            </View>
-          </View>
-
-          {/* Your total */}
-          <View className="bg-zinc-100 rounded-xl p-2 shadow-sm  shadow-zinc-500">
-            <Text className="font-bold">Your total</Text>
-            <View className="flex-row mt-2 items-center">
-              <InformationCircleIcon name="user" size={28} color="#fe6c44" />
-
-              <Text className="ml-2 border border-zinc-300 flex-1 rounded-xl p-2 ">
-                £ {parseFloat(total).toFixed(2)}
-              </Text>
-            </View>
-          </View>
-        </View>
+        </TouchableWithoutFeedback>
       </ScrollView>
+
       {infoOrderSet ? (
         <TouchableOpacity
           onPress={sendOrder}

@@ -16,7 +16,6 @@ import {
   removeFromBasket,
   selectBasketItems,
   selectBasketTotal,
-  selectBasketTotalQuantity,
 } from "../../features/basketSlice";
 import BasketIcon from "../../components/Basket/BasketIcon";
 import BackButton from "../../components/BackButton";
@@ -27,11 +26,9 @@ const BasketItem = ({ item }) => {
 
   const addItemToBasket = () => {
     dispatch(addToBasket(item));
-    console.log(item);
   };
 
   const removeItemFromBasket = () => {
-    console.log(item.id);
     dispatch(removeFromBasket(item));
   };
 
@@ -80,9 +77,7 @@ const BasketScreen = () => {
   const navigation = useNavigation();
   const basketItems = useSelector(selectBasketItems);
   const total = useSelector(selectBasketTotal);
-  const totalQuantity = useSelector(selectBasketTotalQuantity);
 
-  console.log(basketItems);
 
   return (
     // SAFE AREA CONTAINER
@@ -144,7 +139,7 @@ const BasketScreen = () => {
           onPress={() => navigation.navigate("SetOrderScreen")}
         >
           <View className="">
-            <Text className="text-white font-bold text-xl text-center py-4 px-4">
+            <Text className="text-white font-bold text-xl text-center py-4 px-4 uppercase">
               Place your order
             </Text>
           </View>

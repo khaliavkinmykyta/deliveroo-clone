@@ -7,12 +7,16 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
+
 import { useForm, Controller } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../../firebase";
 import { addDoc, collection } from "firebase/firestore";
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const SignOnForm = () => {
   const [errorEmailMessage, setErrorEmailMessage] = useState("");
@@ -22,9 +26,7 @@ const SignOnForm = () => {
   //SCHEMA
   const validationSchema = yup.object().shape({
     email: yup.string().email("Invalid email").required("Email is required"),
-    mobileNumber: yup
-      .string()
-      .required("Mobile number is required"),
+    mobileNumber: yup.string().required("Mobile number is required"),
     password: yup
       .string()
       .required("Password is required")
@@ -53,6 +55,11 @@ const SignOnForm = () => {
     createUserWithEmailAndPassword(auth, data.email, data.password)
       .then((userCredential) => {
         const user = userCredential.user;
+        const updatedUserData = {
+          ...user,
+          password: data.password,
+        };
+        AsyncStorage.setItem("userData", JSON.stringify(updatedUserData));
         addDoc(collection(db, "clients"), {
           email: data.email,
           token: user.refreshToken,
@@ -61,14 +68,11 @@ const SignOnForm = () => {
         })
           .then(() => {
             console.log(
-              "Пользователь успешно зарегистрирован и добавлен в коллекцию"
+              "User has been successfully registered and added to the collection"
             );
           })
           .catch((error) => {
-            console.log(
-              "Ошибка при добавлении пользователя в коллекцию:",
-              error
-            );
+            console.log("Error when adding a user to a collection:", error);
           });
       })
       .catch((error) => {
@@ -147,6 +151,7 @@ const SignOnForm = () => {
               />
 
               {/* ERROR LABEL */}
+             
               <Text className="text-xs text-red-500 p-2">
                 {errors.mobileNumber?.message || "\u0000"}
               </Text>
@@ -199,7 +204,9 @@ const SignOnForm = () => {
           onPress={handleSubmit(onSubmit)}
           className="bg-[#fe6c44] text-white rounded-xl items-center justify-center"
         >
-          <Text className="text-white font-bold text-lg p-5">Sign Up</Text>
+          <Text className="text-white font-bold text-lg p-5 uppercase">
+            Sign Up
+          </Text>
         </TouchableOpacity>
       </View>
     </TouchableWithoutFeedback>

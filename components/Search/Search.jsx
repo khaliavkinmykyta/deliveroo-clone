@@ -81,7 +81,7 @@ const Search = () => {
                     />
                     <Text className="">{item.name.length > 30 ? `${item.name.slice(0, 30)}...` : item.name}</Text>
                   </View>
-                  <Text className="font-bold">${item.price}</Text>
+                  <Text className="font-bold">£{item.price}</Text>
                 </View>
               </TouchableOpacity>
             )}

@@ -1,7 +1,6 @@
 import { createAction, createSlice } from "@reduxjs/toolkit";
 export const clearBasket = createAction("basket/clear");
 
-
 const initialState = {
   items: [],
 };
@@ -51,7 +50,7 @@ export const basketSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(clearBasket, (state) => {
-      state.items = []; // Очищаем массив с элементами корзины
+      state.items = [];
     });
   },
 });
@@ -61,15 +60,16 @@ export const { addToBasket, removeFromBasket } = basketSlice.actions;
 export const selectBasketItems = (state) => state.basket.items;
 
 export const selectBasketItemsWithId = (state, docName) => {
-  console.log('hi iam selector')
-  const itemsWithDocName = state.basket.items.filter((item) => item.docName === docName);
+  const itemsWithDocName = state.basket.items.filter(
+    (item) => item.docName === docName
+  );
   if (itemsWithDocName.length > 0) {
     console.log(itemsWithDocName[0].quantity);
     return itemsWithDocName[0].quantity;
   } else {
     return 0;
   }
-}
+};
 
 export const selectBasketTotalQuantity = (state) => {
   const basketItems = selectBasketItems(state);
@@ -90,6 +90,5 @@ export const selectBasketTotal = (state) => {
 export const selectEmptyBasket = (state) => {
   return [];
 };
-
 
 export default basketSlice.reducer;

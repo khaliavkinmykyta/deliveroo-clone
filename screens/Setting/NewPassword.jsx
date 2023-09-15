@@ -3,10 +3,9 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  SafeAreaView,
-  TouchableWithoutFeedback,
+  ActivityIndicator,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import BackButton from "../../components/BackButton";
 import BasketIcon from "../../components/Basket/BasketIcon";
@@ -15,13 +14,16 @@ import { updatePassword } from "firebase/auth";
 import { useForm, Controller } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Bars3CenterLeftIcon, ChevronLeftIcon } from "react-native-heroicons/outline";
+
 import { useNavigation } from "@react-navigation/native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import OpenDrawer from "../../components/Buttons/OpenDrawer";
 
 const NewPassword = () => {
-
   const user = auth.currentUser;
-  const navigation = useNavigation();
+  const [passValid, setPassValid] = useState(true);
+  const [errorPass, setErrorPass] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const [successChange, setSuccessChange] = useState(false);
 
@@ -47,57 +49,64 @@ const NewPassword = () => {
   });
 
   //   CHANGE PASSWORD
-  const changePassword = (data) => {
-    console.log("?");
-    // auth.user
-    console.log(user);
-    updatePassword(user, data.newPassword)
-      .then(() => {
-        // Update successful.
-        console.log("+");
-        setSuccessChange(true);
-        reset();
-      })
-      .catch((error) => {
-        console.log("-");
-        console.log(error);
-        setSuccessChange(false);
-        // An error ocurred
-        // ...
-      });
-  };
-  const openSetting= () => {
-    navigation.navigate("SettingScreen")
+  // const changePassword = (data) => {
+  //   console.log("?");
+  //   // auth.user
+  //   console.log(user);
+  //   updatePassword(user, data.newPassword)
+  //     .then(() => {
+  //       // Update successful.
+  //       console.log("+");
+  //       setSuccessChange(true);
+  //       reset();
+  //     })
+  //     .catch((error) => {
+  //       console.log("-");
+  //       console.log(error);
+  //       setSuccessChange(false);
+  //       // An error ocurred
+  //       // ...
+  //     });
+  // };
+
+  const changePassword = async (data) => {
+    setLoading(true);
+    try {
+      await updatePassword(user, data.newPassword);
+      setSuccessChange(true);
+      setPassValid(true);
+      reset();
+    } catch (error) {
+      console.log("Failed login!");
+
+      const errorCode = error.code;
+      const errorMessage = error.message;
+
+      setErrorPass(errorMessage);
+      setPassValid(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
-//  
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 px-4 py-2 bg-white">
       {/* HEADER */}
-      <View className="bg-white flex-row justify-between items-center px-2">
-                {/* Drawer Icon */}
-                <TouchableOpacity
-          onPress={openSetting}
-          className=" border-[#cecfd2] p-1"
-          style={{
-            borderColor: "#cecfd2",
-            borderWidth: 1,
-            borderRadius: 10,
-          }}
-        >
-          <ChevronLeftIcon color="#cecfd2" />
-        </TouchableOpacity>
-
+      <View className="bg-white flex-row justify-between items-center">
+        {/* Drawer Icon */}
+        <BackButton />
         <Text className="text-xl font-bold text-black">Change password</Text>
         <BasketIcon />
       </View>
 
       {successChange ? (
         <View className="bg-green-300 m-4 rounded-xl">
-          <Text className='text-2xl font-bold p-5 text-center'>You have successfully updated your password!</Text>
+          <Text className="text-2xl font-bold p-5 text-center">
+            You have successfully updated your password!
+          </Text>
         </View>
       ) : (
-        <View className="mx-4 my-4">
+        <View className="my-5">
           {/* NEW PASSWORD  CONTROLLER */}
           <Controller
             control={control}
@@ -105,7 +114,7 @@ const NewPassword = () => {
               <View>
                 {/* LABEL */}
                 <Text className="block text-sm text-gray-500 mb-1">
-                  Input your new password
+                  Set your new password:
                 </Text>
 
                 {/* INPUT */}
@@ -128,14 +137,25 @@ const NewPassword = () => {
           />
 
           {/* SUBMIT ORIGINAL PASSWORD */}
-          <TouchableOpacity className="bg-[#fe6c44] text-white p-4 rounded-xl">
-            <Text
-              className="text-white font-bold text-lg text-center"
-              onPress={handleSubmit(changePassword)}
-            >
+          <TouchableOpacity
+            className="bg-[#fe6c44] text-white p-4 rounded-xl"
+            onPress={handleSubmit(changePassword)}
+          >
+            <Text className="text-white font-bold text-lg text-center">
               SET NEW PASSWORD
             </Text>
           </TouchableOpacity>
+          {loading ? (
+            <ActivityIndicator className="my-5" color="black" size="large" />
+          ) : (
+            ""
+          )}
+
+          {passValid ? (
+            ""
+          ) : (
+            <Text className="text-xs text-red-500 p-2">{errorPass}</Text>
+          )}
         </View>
       )}
     </SafeAreaView>

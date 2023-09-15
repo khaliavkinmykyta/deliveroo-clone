@@ -47,12 +47,12 @@ const SupportScreen = () => {
         <View className="">
           {/* BODY H1 */}
           <Text className="text-2xl text-center my-10">
-            Our support works from 08:00 to 20:00.
+            Our support works from 10:00 a.m to 08:00 p.m.
           </Text>
 
           {/* PHONE */}
-          <View className="flex-row justify-center items-center mb-10">
-            <Text className="font-bold text-lg ml-3">+44 7384-314-947</Text>
+          <View className="flex-row justify-center items-center mb-10 ">
+            <Text className="font-bold text-lg">+44 7384-314-947</Text>
           </View>
 
           {/* CHANNEL */}

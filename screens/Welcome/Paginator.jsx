@@ -1,4 +1,4 @@
-import { View, Text, Animated, useWindowDimensions } from "react-native";
+import { View, Animated, useWindowDimensions } from "react-native";
 import React from "react";
 
 const Paginator = ({ data, scrollX }) => {
@@ -14,15 +14,14 @@ const Paginator = ({ data, scrollX }) => {
           extrapolate: "clamp",
         });
         const opacity = scrollX.interpolate({
-            inputRange,
-            outputRange: [0.3, 1, 0.3],
-            extrapolate: "clamp",
-          });
+          inputRange,
+          outputRange: [0.3, 1, 0.3],
+          extrapolate: "clamp",
+        });
         return (
           <Animated.View
             className="bg-white rounded-full h-3 m-1"
-            style={{width: dotWidth, opacity}}
-
+            style={{ width: dotWidth, opacity }}
             key={i.toString()}
           ></Animated.View>
         );

@@ -4,7 +4,6 @@ import {
   Image,
   TextInput,
   ScrollView,
-  Button,
   TouchableOpacity,
   TouchableWithoutFeedback,
   Keyboard,
@@ -22,7 +21,6 @@ import { auth } from "../../firebase";
 const ForgotPassword = () => {
   const [done, setDone] = useState(false);
   const [errorEmailMessage, setErrorEmailMessage] = useState("");
-  const [errorAllMessage, setErrorAllMessage] = useState("");
 
   //SCHEMA
   const validationSchema = yup.object().shape({
@@ -58,15 +56,13 @@ const ForgotPassword = () => {
         console.log(errorMessage);
 
         switch (errorCode) {
-            case "auth/user-not-found":
-              setErrorEmailMessage("User not found");
-              break;
-            default:
-              setErrorEmailMessage(errorMessage);
-              break;
-          }
-
-        // ..
+          case "auth/user-not-found":
+            setErrorEmailMessage("User not found");
+            break;
+          default:
+            setErrorEmailMessage(errorMessage);
+            break;
+        }
       });
   };
 
@@ -80,10 +76,10 @@ const ForgotPassword = () => {
             <Image
               className="h-14 w-14 rounded-xl"
               source={{
-                uri: "https://cdn.dribbble.com/users/5462907/screenshots/11960844/5.png",
+                uri: "https://firebasestorage.googleapis.com/v0/b/test-client-app-ff5fa.appspot.com/o/images%2FScreenshot%202023-09-02%20at%2021.41.43.png?alt=media&token=11aeac0b-2bb9-42d2-91d7-3acbd1e6e78d",
               }}
             />
-            <Text className="text-orange font-bold text-3xl">EatMe</Text>
+            <Text className="text-orange font-bold text-3xl">RestoWave</Text>
           </View>
 
           {/* GET START TEXT */}
@@ -91,7 +87,7 @@ const ForgotPassword = () => {
             <Text className="font-bold text-lg mt-10">
               Forgot your password?
             </Text>
-            <Text className="text-gray-600 ">Enter your e-mail </Text>
+            <Text className="text-gray-600">Enter your e-mail </Text>
           </View>
         </View>
 
@@ -135,7 +131,7 @@ const ForgotPassword = () => {
               onPress={handleSubmit(onSubmit)}
               className="bg-[#fe6c44] text-white rounded-xl items-center justify-center"
             >
-              <Text className="text-white font-bold text-lg p-5">
+              <Text className="text-white font-bold text-lg p-5 uppercase">
                 Reset password
               </Text>
             </TouchableOpacity>
@@ -156,9 +152,9 @@ const ForgotPassword = () => {
     </TouchableWithoutFeedback>
   ) : (
     <View className="flex-1 bg-[#fe6c44] justify-center  items-center space-y-10 p-10">
-        <Text className="text-xl rounded-xl  text-center font-semibold">
-          A new password has been sent to your email!
-        </Text>
+      <Text className="text-xl rounded-xl  text-center font-semibold">
+        A new password has been sent to your email!
+      </Text>
       <TouchableOpacity
         className="bg-white p-5 rounded-xl"
         onPress={() => navigation.navigate("SignIn")}

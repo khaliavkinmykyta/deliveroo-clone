@@ -15,26 +15,24 @@ const initialUserState = {
 
 export default function AuthWrapper({ children }) {
   const [user, setUser] = useState(initialUserState);
-  const [userDB, setUserDB] = useState();
-  const [isLoading, setIsLoading] = useState(true);
-  const userTrue = auth.currentUser;
-  
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      setIsLoading(true)
       if (user) {
         const usersCollection = collection(db, "clients");
         const q = query(usersCollection, where("id", "==", user.uid));
-  
+
         try {
           const querySnapshot = await getDocs(q);
-  
+
           if (querySnapshot.empty) {
             console.log("User not found");
           } else {
-            const userDBData = querySnapshot.docs[0].data(); // Assuming there's only one matching document
+            const userDBData = querySnapshot.docs[0].data();
             console.log("User data from DB:", userDBData);
-  
+
             setUser({
               email: user.email,
               uid: user.uid,
@@ -53,17 +51,12 @@ export default function AuthWrapper({ children }) {
           isAuthenticated: false,
         });
       }
-  
+
       setIsLoading(false);
     });
-  
-    // Отписываемся от подписки при размонтировании компонента
+
     return () => unsubscribe();
   }, []);
-  
-  
-
-
 
   //Login Firebase
   const login = (email, password) => {

@@ -1,6 +1,5 @@
-import { View, Text, TouchableOpacity, SafeAreaView } from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import React, { useState } from "react";
-import { ChevronLeftIcon } from "react-native-heroicons/outline";
 import BasketIcon from "../../../components/Basket/BasketIcon";
 import BackButton from "../../../components/BackButton";
 import { auth } from "../../../firebase";
@@ -10,12 +9,15 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigation } from "@react-navigation/native";
 import { TextInput } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const EmailScreen = () => {
-    const [passValid, setPassValid] = useState(false);
-    const navigation = useNavigation();
+  const [passValid, setPassValid] = useState(true);
+  const [errorPass, setErrorPass] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const navigation = useNavigation();
   const user = auth.currentUser;
-  
 
   //SCHEMAS
   const currentPasswordSchema = yup.object().shape({
@@ -38,51 +40,75 @@ const EmailScreen = () => {
     },
   });
 
-  const onSubmit = (data) => {
-    console.log("allo");
-    console.log(data.password)
-    console.log(user.email)
-    const credential = EmailAuthProvider.credential(user.email, data.password);
+  // const onSubmit = (data) => {
 
-    reauthenticateWithCredential(user, credential)
-    .then(() => {
-        // User re-authenticated.
-        console.log("User re-authenticated.");
-        setPassValid(true)
-        navigation.navigate("NewEmail");
+  //   reauthenticateWithCredential(user, credential)
+  //     .then(() => {
+  //       // User re-authenticated.
+  //       console.log("User re-authenticated.");
+  //       setPassValid(true);
+  //       navigation.navigate("NewEmail");
+  //     })
+  //     .catch((error) => {
+  //       // An error ocurred
+  //       // ...
+  //       setPassValid(false);
+  //       console.log("      // An error ocurred      ");
+  //       console.log(error);
+  //     });
+  // };
 
-      })
-      .catch((error) => {
-        // An error ocurred
-        // ...
-        setPassValid(false)
-        console.log("      // An error ocurred      ");
-        console.log(error);
-      });
+  const onSubmit = async (data) => {
+    setLoading(true);
+    try {
+      const credential = EmailAuthProvider.credential(
+        user.email,
+        data.password
+      );
+
+      await reauthenticateWithCredential(user, credential);
+
+      setPassValid(true);
+      reset();
+      navigation.navigate("NewEmail");
+    } catch (error) {
+      console.log("Failed login!");
+
+      const errorCode = error.code;
+      const errorMessage = error.message;
+
+      setErrorPass(errorMessage);
+      setPassValid(false);
+    } finally {
+      setLoading(false);
+    }
   };
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 px-4 py-2 bg-white">
       {/* HEADER */}
-      <View className="bg-white flex-row justify-between items-center px-2">
+      <View className="bg-white flex-row justify-between items-center">
         {/* Drawer Icon */}
         <BackButton />
 
         <Text className="text-xl font-bold text-black">Change email</Text>
         <BasketIcon />
       </View>
-      
+
       {/* INPUT ORIGINAL PASS */}
-      <View className="mx-4 my-4">
+      <View className="my-5">
         {/* PASSWORD  CONTROLLER */}
         <Controller
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
             <View>
               {/* LABEL */}
-              <Text className="block text-sm text-gray-500 mb-1">Password</Text>
+              <Text className="block text-sm text-gray-500 mb-1">
+                Password:
+              </Text>
 
               {/* INPUT */}
               <TextInput
+                onPressIn={() => setPassValid(true)}
                 placeholder="your password name"
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -101,14 +127,25 @@ const EmailScreen = () => {
         />
 
         {/* SUBMIT ORIGINAL PASSWORD */}
-        <TouchableOpacity className="bg-[#fe6c44] text-white p-4 rounded-xl">
-          <Text
-            className="text-white font-bold text-lg text-center"
-            onPress={handleSubmit(onSubmit)}
-          >
+        <TouchableOpacity
+          className="bg-[#fe6c44] text-white p-4 rounded-xl"
+          onPress={handleSubmit(onSubmit)}
+        >
+          <Text className="text-white font-bold text-lg text-center">
             ENTER YOUR PASSWORD
           </Text>
         </TouchableOpacity>
+        {loading ? (
+          <ActivityIndicator className="my-5" color="black" size="large" />
+        ) : (
+          ""
+        )}
+
+        {passValid ? (
+          ""
+        ) : (
+          <Text className="text-xs text-red-500 p-2">{errorPass}</Text>
+        )}
       </View>
     </SafeAreaView>
   );

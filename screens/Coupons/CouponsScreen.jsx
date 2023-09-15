@@ -194,7 +194,7 @@ const CouponsScreen = () => {
                   <View className="flex-row gap-5">
                     <Image
                       source={{
-                        uri: promoCode.img,
+                        uri: "https://firebasestorage.googleapis.com/v0/b/test-client-app-ff5fa.appspot.com/o/image-removebg-preview%20(5).png?alt=media&token=2aecdeb8-b872-4212-a145-a77c0108e7cb",
                       }}
                       className="h-10 w-10 rounded-xl"
                     />
@@ -243,7 +243,7 @@ const CouponsScreen = () => {
             <View className="mx-auto w-full">
               <TouchableOpacity
                 className="bg-[#fe6c44] rounded-xl h-12 "
-                onPress={checkCode}
+                onPress={() => alert("Promo code is not valid")}
               >
                 <Text className="m-auto text-white font-bold text-lg">
                   Add promo code

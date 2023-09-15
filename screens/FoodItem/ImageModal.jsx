@@ -1,10 +1,8 @@
 import React from "react";
 import {
   View,
-  Text,
   Image,
   Modal,
-  TouchableOpacity,
   TouchableWithoutFeedback,
   StyleSheet,
   Dimensions,

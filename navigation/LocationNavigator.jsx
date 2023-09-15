@@ -9,8 +9,8 @@ const LocationNavigator = () => {
   return (
     <LocationStack.Navigator screenOptions={{ headerShown: false }}>
       <LocationStack.Screen
-          options={{ unmountOnBlur: true }}
-
+        unmountOnBlur={true}
+        options={{ unmountOnBlur: true }}
         name="LocationSetScreen"
         component={LocationSetScreen}
       />

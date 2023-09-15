@@ -2,15 +2,13 @@ import { useState, useEffect, useRef } from "react";
 import {
   Text,
   View,
-  Button,
   Platform,
   Image,
   TouchableWithoutFeedback,
 } from "react-native";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import OpenDrawer from "../../components/Buttons/OpenDrawer";
+import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import BasketIcon from "../../components/Basket/BasketIcon";
 import { useNavigation } from "@react-navigation/native";
 import { Bars3CenterLeftIcon } from "react-native-heroicons/outline";
@@ -19,7 +17,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
-    shouldPlaySound: false,
+    shouldPlaySound: true,
     shouldSetBadge: false,
   }),
 });
@@ -59,8 +57,8 @@ export default function NotificationsScreen() {
   }, []);
 
   return (
-    <SafeAreaView className="bg-[#fe6c44] flex-1  ">
-      <View className="flex-row justify-between items-center px-2 mb-2">
+    <SafeAreaView className="bg-[#fe6c44] flex-1 px-4 py-2">
+      <View className="flex-row justify-between items-center mb-2">
         {/* Back Icon */}
         <View>
           <TouchableWithoutFeedback onPress={openDrawer}>
@@ -72,13 +70,13 @@ export default function NotificationsScreen() {
         <Text className="text-xl font-bold text-black">Notifications</Text>
         <BasketIcon />
       </View>
-      <View className="mx-4 flex-1 justify-evenly">
+      <ScrollView className="flex-1 gap-5 my-3">
         <View className="items-center gap-1">
           <Image
             source={{
               uri: "https://firebasestorage.googleapis.com/v0/b/test-client-app-ff5fa.appspot.com/o/images%2Fgirl.png?alt=media&token=ddab01cb-480a-4021-ba5f-217ec4e36326",
             }}
-            className="h-20 w-20 rounded-xl relative mr-2"
+            className="h-20 w-20 rounded-xl relative"
           />
           <Text className="text-white text-center text-lg font-semibold">
             This is an example of the kind of notification your customers can
@@ -96,12 +94,13 @@ export default function NotificationsScreen() {
             </Text>
           </TouchableOpacity>
         </View>
+
         <View className="items-center gap-1">
           <Image
             source={{
               uri: "https://firebasestorage.googleapis.com/v0/b/test-client-app-ff5fa.appspot.com/o/images%2FScreenshot%202023-09-02%20at%2021.41.43.png?alt=media&token=11aeac0b-2bb9-42d2-91d7-3acbd1e6e78d",
             }}
-            className="h-20 w-20 rounded-xl relative mr-2"
+            className="h-20 w-20 rounded-xl relative"
           />
           <Text className="text-white text-center text-lg font-semibold">
             This is, again, an example of a courier picking up an order from
@@ -124,7 +123,7 @@ export default function NotificationsScreen() {
             source={{
               uri: "https://firebasestorage.googleapis.com/v0/b/test-client-app-ff5fa.appspot.com/o/images%2Fcour.png?alt=media&token=3282b467-ce2b-447e-8654-1a0bcebe1b10",
             }}
-            className="h-20 w-20 rounded-xl relative mr-2"
+            className="h-20 w-20 rounded-xl relative"
           />
           <Text className="text-white text-center text-lg font-semibold">
             For example, a customer hasn't placed an order in a long time.
@@ -142,20 +141,9 @@ export default function NotificationsScreen() {
             </Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
-}
-
-async function schedulePushNotification() {
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title: "You've got mail! 📬",
-      body: "Here is the notification body",
-      data: { data: "goes here" },
-    },
-    trigger: { seconds: 1 },
-  });
 }
 
 async function promotionPushNotification() {

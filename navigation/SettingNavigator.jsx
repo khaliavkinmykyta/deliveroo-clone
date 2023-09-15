@@ -1,4 +1,3 @@
-import { View, Text } from 'react-native'
 import React from 'react'
 import SettingScreen from '../screens/Setting/SettingScreen';
 import ChangePassword from '../screens/Setting/ChangePassword';
@@ -15,6 +14,7 @@ const SettingStack = createNativeStackNavigator();
 const SettingNavigator = () => {
   return (
     <SettingStack.Navigator screenOptions={{ headerShown: false }}>
+
       <SettingStack.Screen name="SettingScreen" component={SettingScreen} />
       <SettingStack.Screen name="ChangePassword" component={ChangePassword}/>
       <SettingStack.Screen name="NewPassword" component={NewPassword}/>

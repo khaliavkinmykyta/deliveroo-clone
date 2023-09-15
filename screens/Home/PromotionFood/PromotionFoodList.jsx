@@ -1,8 +1,7 @@
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
-import { getDocs, limit, query } from "firebase/firestore";
+import { onSnapshot, query, collection, limit } from "firebase/firestore"; // Изменили импорты
 import { db } from "../../../firebase";
-import { collection } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
 import { PlusCircleIcon } from "react-native-heroicons/outline";
 import { v4 as uuidv4 } from "uuid";
@@ -14,24 +13,35 @@ const PromotionFoodList = () => {
 
   const goToFoodCategory = () => {
     navigation.navigate("PromotionScreenFood");
-    
   };
 
   const fetchPromotionFood = useCallback(async () => {
+    console.log("fetchPromotionFood promotion list");
+
     try {
       const promotionFoodRef = collection(db, "promotionFoodItem");
       const q = query(promotionFoodRef, limit(5));
-      const querySnapshot = await getDocs(q);
+      // Используем onSnapshot для подписки на изменения
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const promotionFoodData = querySnapshot.docs.map((doc) => doc.data());
+        setPromotionFoodItems(promotionFoodData);
+      });
 
-      const promotionFoodData = querySnapshot.docs.map((doc) => doc.data());
-      setPromotionFoodItems(promotionFoodData);
+      return unsubscribe; // Возвращаем функцию отписки
     } catch (error) {
       console.error("Error fetching promo food items:", error);
     }
   }, []);
 
   useEffect(() => {
-    fetchPromotionFood();
+    "UE promotion list";
+
+    let unsubscribe = fetchPromotionFood();
+    return () => {
+      if (unsubscribe && typeof unsubscribe === "function") {
+        unsubscribe();
+      }
+    };
   }, [fetchPromotionFood]);
 
   return (

@@ -3,33 +3,32 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  SafeAreaView,
-  TouchableWithoutFeedback,
+  ActivityIndicator,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import { useForm, Controller } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import {
-  Bars3CenterLeftIcon,
-  ChevronLeftIcon,
-} from "react-native-heroicons/outline";
-import { useNavigation } from "@react-navigation/native";
 import BasketIcon from "../../../components/Basket/BasketIcon";
-import { auth } from "../../../firebase";
-import { updateEmail } from "firebase/auth";
+import { auth, db } from "../../../firebase";
+import { updateEmail, updateProfile } from "firebase/auth";
+import { SafeAreaView } from "react-native-safe-area-context";
+import BackButton from "../../../components/BackButton";
+import { collection, getDocs, query, updateDoc, where } from "firebase/firestore";
+import { AuthDataContext } from "../../../hooks/AuthWrapper";
 
 const NewEmail = () => {
-  const user = auth.currentUser;
-  const navigation = useNavigation();
+  const { user, updateUser } = AuthDataContext();
 
   const [successChange, setSuccessChange] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [passValid, setPassValid] = useState(true);
+  const [errorPass, setErrorPass] = useState("");
 
   //SCHEMAS
   const newEmailSchema = yup.object().shape({
     newEmail: yup.string().email("Invalid email").required("Email is required"),
-
   });
 
   //FORM SETTING
@@ -41,52 +40,86 @@ const NewEmail = () => {
   } = useForm({
     resolver: yupResolver(newEmailSchema),
     defaultValues: {
-        newEmail: "",
+      newEmail: "",
     },
   });
 
   //   CHANGE PASSWORD
-  const changeEmail = (data) => {
-    console.log("?");
-    // auth.user
-    console.log(user);
-    updateEmail(user, data.newEmail)
-      .then(() => {
-        // Update successful.
-        console.log("+");
-        setSuccessChange(true);
-        reset();
-      })
-      .catch((error) => {
-        console.log("-");
-        console.log(error);
-        setSuccessChange(false);
-        // An error ocurred
-        // ...
+  // const changeEmail = (data) => {
+
+  //   updateEmail(user, data.newEmail)
+  //     .then(() => {
+  //       // Update successful.
+  //       console.log("+");
+  //       setSuccessChange(true);
+  //       reset();
+  //     })
+  //     .catch((error) => {
+  //       console.log("-");
+  //       console.log(error);
+  //       setSuccessChange(false);
+  //       // An error ocurred
+  //       // ...
+  //     });
+  // };
+  const changeEmail = async (data) => {
+    setLoading(true);
+    try {
+      await updateEmail(auth.currentUser, data.newEmail);
+
+      await updateProfile(auth.currentUser, {
+        email: data.newEmail,
       });
-  };
-  const openSetting = () => {
-    navigation.navigate("SettingScreen");
+
+      const updatedUser = { ...user, email: data.newEmail };
+      updateUser(updatedUser);
+      updateFB(data);
+      setSuccessChange(true);
+
+      setPassValid(true);
+      reset();
+    } catch (error) {
+      console.log("Failed login!");
+      setSuccessChange(false);
+      const errorMessage = error.message;
+
+      setErrorPass(errorMessage);
+      setPassValid(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  //
+  const updateFB = async (data) => {
+    try {
+      const collectionRef = collection(db, "clients");
+      const querySnapshot = await getDocs(
+        query(collectionRef, where("id", "==", user.uid))
+      );
+
+      if (!querySnapshot.empty) {
+        const userDocRef = querySnapshot.docs[0].ref;
+        await updateDoc(userDocRef, { email: data.newEmail });
+        // UPDATE CONTEXT WITH NEW NAME
+        const updatedUser = {
+          ...user,
+          email: data.newEmail
+        };
+        updateUser(updatedUser);
+      } else {
+        console.log("Doc not found!");
+      }
+    } catch (error) {
+      console.log("Error doc:", error);
+    }
+  };
+
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 px-4 py-2 bg-white">
       {/* HEADER */}
-      <View className="bg-white flex-row justify-between items-center px-2">
+      <View className="bg-white flex-row justify-between items-center">
         {/* Drawer Icon */}
-        <TouchableOpacity
-          onPress={openSetting}
-          className=" border-[#cecfd2] p-1"
-          style={{
-            borderColor: "#cecfd2",
-            borderWidth: 1,
-            borderRadius: "10%",
-          }}
-        >
-          <ChevronLeftIcon color="#cecfd2" />
-        </TouchableOpacity>
-
+        <BackButton />
         <Text className="text-xl font-bold text-black">Change email</Text>
         <BasketIcon />
       </View>
@@ -98,7 +131,7 @@ const NewEmail = () => {
           </Text>
         </View>
       ) : (
-        <View className="mx-4 my-4">
+        <View className="my-5">
           {/* NEW PASSWORD  CONTROLLER */}
           <Controller
             control={control}
@@ -106,15 +139,17 @@ const NewEmail = () => {
               <View>
                 {/* LABEL */}
                 <Text className="block text-sm text-gray-500 mb-1">
-                  Input your new email
+                  Input your new email:
                 </Text>
 
                 {/* INPUT */}
                 <TextInput
+                  onPressIn={() => setPassValid(true)}
                   placeholder="your new email name"
                   onBlur={onBlur}
                   onChangeText={onChange}
                   value={value}
+                  autoCapitalize="none"
                   className="bg-gray-200 h-12 rounded-xl p-4"
                 />
 
@@ -128,14 +163,25 @@ const NewEmail = () => {
           />
 
           {/* SUBMIT ORIGINAL PASSWORD */}
-          <TouchableOpacity className="bg-[#fe6c44] text-white p-4 rounded-xl">
-            <Text
-              className="text-white font-bold text-lg text-center"
-              onPress={handleSubmit(changeEmail)}
-            >
+          <TouchableOpacity
+            className="bg-[#fe6c44] text-white p-4 rounded-xl"
+            onPress={handleSubmit(changeEmail)}
+          >
+            <Text className="text-white font-bold text-lg text-center">
               SET NEW EMAIL
             </Text>
           </TouchableOpacity>
+          {loading ? (
+            <ActivityIndicator className="my-5" color="black" size="large" />
+          ) : (
+            ""
+          )}
+
+          {passValid ? (
+            ""
+          ) : (
+            <Text className="text-xs text-red-500 p-2">{errorPass}</Text>
+          )}
         </View>
       )}
     </SafeAreaView>

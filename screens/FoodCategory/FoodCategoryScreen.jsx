@@ -98,8 +98,8 @@ const FoodCategoryScreen = () => {
           renderItem={({ item }) => <FoodRow item={item} key={item.docName} />}
         />
       ) : (
-        <View className="mx-4 justify-center items-center mt-10 bg-[#fe6c44] p-1 rounded-xl">
-          <Text className="text-3xl text-center text-white font-medium ">
+        <View className="mx-4 justify-center items-center mt-10 bg-[#fe6c44] px-4 py-2 rounded-xl">
+          <Text className="text-2xl text-center text-white font-medium ">
             We don't have any food at this category, sorry!
           </Text>
         </View>

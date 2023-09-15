@@ -1,6 +1,5 @@
-import { View, Text, SafeAreaView, Image, Touchable } from "react-native";
+import { View, Text, SafeAreaView, Image } from "react-native";
 import React from "react";
-import { HandThumbUpIcon } from "react-native-heroicons/outline";
 import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 

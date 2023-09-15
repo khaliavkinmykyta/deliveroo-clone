@@ -4,7 +4,6 @@ import {
   Text,
   TextInput,
   Switch,
-  Button,
   TouchableOpacity,
   TouchableWithoutFeedback,
   Keyboard,
@@ -12,19 +11,13 @@ import {
 import { useForm, Controller } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  updateProfile,
-} from "firebase/auth";
-import { auth, db } from "../../firebase";
-import { addDoc, collection, updateDoc } from "firebase/firestore";
-import { AuthDataContext } from "../../hooks/AuthWrapper";
-import Loading from "../../components/Loading";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../firebase";
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const SignInForm = () => {
-    const navigation = useNavigation();
+  const navigation = useNavigation();
 
   //Save me toggle switch
   const [isEnabled, setIsEnabled] = useState(true);
@@ -67,6 +60,12 @@ const SignInForm = () => {
     signInWithEmailAndPassword(auth, data.email, data.password)
       .then((userCredential) => {
         const user = userCredential.user;
+        const updatedUserData = {
+          ...user,
+          password: data.password,
+        };
+        AsyncStorage.setItem("userData", JSON.stringify(updatedUserData));
+
         console.log(user);
       })
 
@@ -174,10 +173,10 @@ const SignInForm = () => {
           onPress={handleSubmit(onSubmit)}
           className="bg-[#fe6c44] text-white rounded-xl items-center justify-center"
         >
-          <Text className="text-white font-bold text-lg p-5">Sign In</Text>
+          <Text className="text-white font-bold text-lg p-5 uppercase">Sign In</Text>
         </TouchableOpacity>
 
-        {/* FFORGOT */}
+        {/* FORGOT */}
         <View className="flex-row justify-between items-center mt-4">
           <View className="flex-row items-center space-x-1">
             <Switch

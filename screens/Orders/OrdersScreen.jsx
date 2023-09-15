@@ -5,15 +5,14 @@ import {
   Image,
   RefreshControl,
   StyleSheet,
-  TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   collection,
   query,
   where,
   getDocs,
-  getDoc,
   doc,
   orderBy,
   limit,
@@ -21,7 +20,6 @@ import {
 import { db } from "../../firebase";
 import { AuthDataContext } from "../../hooks/AuthWrapper";
 import BasketIcon from "../../components/Basket/BasketIcon";
-import BackButton from "../../components/BackButton";
 import OpenDrawer from "../../components/Buttons/OpenDrawer";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
@@ -30,6 +28,7 @@ const OrdersScreen = () => {
   const [orders, setOrders] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(false);
 
   const ordersPerPage = 5;
 
@@ -37,10 +36,10 @@ const OrdersScreen = () => {
 
   useFocusEffect(
     useCallback(() => {
-      // Функция, которая будет выполнена при фокусе на экране
       console.log("useFocusEffect");
 
       const onScreenFocus = async () => {
+        setLoading(true);
         try {
           setRefreshing(true);
           await fetchOrders();
@@ -49,13 +48,13 @@ const OrdersScreen = () => {
           console.error("Error refreshing data:", error);
           setRefreshing(false);
         }
+        setLoading(false);
       };
 
-      onScreenFocus(); // Вызываем функцию при фокусе на экране
+      onScreenFocus();
 
-      // Очистка эффекта при размонтировании компонента или снятии фокуса
       return () => {
-        // Здесь можно выполнить какие-либо очисточные действия, если это необходимо
+        // reset
       };
     }, [])
   );
@@ -81,7 +80,7 @@ const OrdersScreen = () => {
       const userOrdersData = [];
       userOrdersQuerySnapshot.forEach((orderDocument) => {
         const orderData = orderDocument.data();
-        const orderId = orderDocument.id; // Получение имени документа в качестве идентификатора
+        const orderId = orderDocument.id;
         userOrdersData.push({ ...orderData, id: orderId });
       });
 
@@ -204,8 +203,8 @@ const OrdersScreen = () => {
   };
 
   const loadMoreOrders = () => {
-    setCurrentPage(currentPage + 1); // Увеличиваем текущую страницу
-    fetchOrders(); // Загружаем дополнительные заказы
+    setCurrentPage(currentPage + 1);
+    fetchOrders();
   };
 
   return (
@@ -216,27 +215,31 @@ const OrdersScreen = () => {
         <Text className="text-xl font-bold text-black">Your orders</Text>
         <BasketIcon />
       </View>
-      <FlatList
-        data={orders}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            colors={["#007AFF"]} // Цвета индикатора обновления
-          />
-        }
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <OrderItem item={item} />}
-        onEndReached={loadMoreOrders}
-        onEndReachedThreshold={0.1}
-        ListEmptyComponent={
-          <View className="flex-1 items-center justify-center mt-10">
-            <Text className="text-center text-2xl font-bold">
-              You don't have any active orders.
-            </Text>
-          </View>
-        }
-      />
+      {loading ? (
+        <ActivityIndicator color="black" size="large" />
+      ) : (
+        <FlatList
+          data={orders}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={["#007AFF"]}
+            />
+          }
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <OrderItem item={item} />}
+          onEndReached={loadMoreOrders}
+          onEndReachedThreshold={0.1}
+          ListEmptyComponent={
+            <View className="flex-1 items-center justify-center mt-10">
+              <Text className="text-center text-2xl font-bold">
+                You don't have any active orders.
+              </Text>
+            </View>
+          }
+        />
+      )}
     </SafeAreaView>
   );
 };

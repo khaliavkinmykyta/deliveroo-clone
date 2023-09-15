@@ -110,14 +110,6 @@ const FoodScreen = () => {
   );
 
   const addItemToBasket = () => {
-    console.log("*************");
-
-    console.log(totalQuantityForFoodItem);
-    // console.log('--------');
-    // console.log(item)
-
-    // console.log('--------');
-
     dispatch(addToBasket(item));
   };
 
@@ -125,13 +117,8 @@ const FoodScreen = () => {
     dispatch(removeFromBasket(item));
   };
 
-  const buyNow = () => {
-    setIsBuy(true);
-    addItemToBasket();
-  };
 
   useEffect(() => {
-    console.log(item);
     const categoryDocRef = doc(db, "categories", item.categoryId);
 
     getDoc(categoryDocRef)
@@ -140,17 +127,13 @@ const FoodScreen = () => {
           const categoryData = docSnapshot.data();
 
           setCatName(categoryData.name);
-          const categoryWithId = {
-            ...categoryData,
-            categoryId: item.categoryId,
-          };
-          console.log(categoryData.name);
+         
         } else {
           console.log("No such document!");
         }
       })
       .catch((error) => {
-        console.error("Ошибка при получении категории:", error);
+        console.error("Error category:", error);
       });
   }, []);
 

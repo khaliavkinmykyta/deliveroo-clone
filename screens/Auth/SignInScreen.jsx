@@ -18,7 +18,7 @@ const SignInScreen = () => {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <SafeAreaView className="p-4 flex-1 justify-between  bg-white">
+      <SafeAreaView className="px-4 py-2 flex-1 justify-between  bg-white">
         {/* HEAD */}
         <View>
           {/* LOGO&COMPANY NAME */}
@@ -26,10 +26,10 @@ const SignInScreen = () => {
             <Image
               className="h-14 w-14 rounded-xl"
               source={{
-                uri: "https://cdn.dribbble.com/users/5462907/screenshots/11960844/5.png",
+                uri: "https://firebasestorage.googleapis.com/v0/b/test-client-app-ff5fa.appspot.com/o/images%2FScreenshot%202023-09-02%20at%2021.41.43.png?alt=media&token=11aeac0b-2bb9-42d2-91d7-3acbd1e6e78d",
               }}
             />
-            <Text className="text-orange font-bold text-3xl">EatMe</Text>
+            <Text className="text-orange font-bold text-3xl">RestoWave</Text>
           </View>
 
           {/* GET START TEXT */}

@@ -12,7 +12,6 @@ import { DrawerActions, useNavigation } from "@react-navigation/native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import {
   ArrowRightOnRectangleIcon,
-  ChatBubbleOvalLeftIcon,
   XMarkIcon,
 } from "react-native-heroicons/outline";
 import {
@@ -24,10 +23,7 @@ import {
   QueueListIcon,
 } from "react-native-heroicons/solid";
 import { Ionicons } from "@expo/vector-icons";
-import WalletScreen from "../screens/Wallet/WalletScreen";
 import { AuthDataContext } from "../hooks/AuthWrapper";
-import { auth } from "../firebase";
-import SettingScreen from "../screens/Setting/SettingScreen";
 import CouponsScreen from "../screens/Coupons/CouponsScreen";
 import SupportScreen from "../screens/Support/SupportScreen";
 import NotificationsScreen from "../screens/Notifications/NotificationsScreen";
@@ -37,6 +33,7 @@ import OrdersScreen from "../screens/Orders/OrdersScreen";
 import LocationNavigator from "./LocationNavigator";
 import { useDispatch } from "react-redux";
 import { clearBasket } from "../features/basketSlice";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const DEFAULT_ICON_COLOR = "white";
 const DEFAULT_ICON_SIZE = 24;
@@ -44,8 +41,6 @@ const DEFAULT_ICON_SIZE = 24;
 const Drawer = createDrawerNavigator();
 
 const DrawerNavigator = () => {
-  const navigation = useNavigation();
-
   return (
     <Drawer.Navigator
       initialRouteName="HomeStack"
@@ -64,17 +59,14 @@ const DrawerNavigator = () => {
         drawerActiveTintColor: "white",
         drawerInactiveTintColor: "white",
       }}
-      //   initialRouteName="Home"
-      // useLegacyImplementation
       drawerContent={(props) => <CustomDrawerContent {...props} />}
     >
       <Drawer.Screen
         name="Main"
-        component={HomeStackNavigator} // Используем созданный стек навигации
+        component={HomeStackNavigator}
         options={{
           headerShown: false,
           drawerIcon: ({ focused, size }) => (
-            // Иконка для главного экрана
             <HomeIcon
               name="homeicon"
               color={DEFAULT_ICON_COLOR}
@@ -86,7 +78,6 @@ const DrawerNavigator = () => {
       />
 
       <Drawer.Screen
-      
         name="Track Order"
         component={TrackOrderScreen}
         options={{
@@ -132,6 +123,7 @@ const DrawerNavigator = () => {
           ),
         }}
       />
+
       <Drawer.Screen
         name="Notifications"
         component={NotificationsScreen}
@@ -163,6 +155,7 @@ const DrawerNavigator = () => {
           ),
         }}
       />
+
       <Drawer.Screen
         name="Support"
         component={SupportScreen}
@@ -179,20 +172,7 @@ const DrawerNavigator = () => {
           ),
         }}
       />
-      {/* <Drawer.Screen
-        name="Wallet"
-        component={WalletScreen}
-        options={{
-          drawerIcon: ({ focused, size }) => (
-            <Ionicons
-              name="wallet"
-              color={DEFAULT_ICON_COLOR}
-              size={DEFAULT_ICON_SIZE}
-              style={{ marginRight: -20 }}
-            />
-          ),
-        }}
-      /> */}
+
       <Drawer.Screen
         name="Setting"
         component={SettingNavigator}
@@ -213,26 +193,23 @@ const DrawerNavigator = () => {
 };
 
 function CustomDrawerContent(props) {
-  const { login, logout, user } = AuthDataContext();
+  const { logout, user } = AuthDataContext();
   const dispatch = useDispatch();
-
-  console.log("drawer");
-  console.log(user.email);
 
   const navigation = useNavigation();
   const handleLogout = () => {
     dispatch(clearBasket());
+    const removeUserDataFromStorage = async () => {
+      try {
+        await AsyncStorage.removeItem("userData");
+        console.log("Deleted AsyncStorage");
+      } catch (error) {
+        console.error("Error Deleted AsyncStorage:", error);
+      }
+    };
+
+    removeUserDataFromStorage();
     logout();
-    // auth
-    //   .signOut()
-    //   .then(() => {
-    //     // Sign-out successful.
-    //     console.log("Sign-out successful.");
-    //   })
-    //   .catch((error) => {
-    //     // An error happened.
-    //     console.error("Error during sign-out:", error);
-    //   });
   };
 
   return (
@@ -258,12 +235,16 @@ function CustomDrawerContent(props) {
         <View className="mx-4 mb-5 flex-row space-x-2">
           <Image
             source={{
-              uri: "https://firebasestorage.googleapis.com/v0/b/test-client-app-ff5fa.appspot.com/o/images%2FScreenshot%202023-09-02%20at%2021.41.43.png?alt=media&token=11aeac0b-2bb9-42d2-91d7-3acbd1e6e78d",
+              uri: "https://firebasestorage.googleapis.com/v0/b/test-client-app-ff5fa.appspot.com/o/images%2Ftest.png?alt=media&token=48084187-95cd-4fdb-b5c1-5ca64d7c04a3",
             }}
-            className="h-10 w-10 rounded-xl"
+            className="h-10 w-10"
           />
-          <TouchableOpacity onPress={()=> {navigation.navigate('Setting')}}>
-            <View>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("Setting");
+            }}
+          >
+            <View className='justify-center'>
               <Text className="text-white font-bold">{user.email}</Text>
               <Text className="text-white">View your profile</Text>
             </View>

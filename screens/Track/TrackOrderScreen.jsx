@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   RefreshControl,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { db } from "../../firebase";
@@ -19,6 +20,7 @@ import { useFocusEffect } from "@react-navigation/native";
 
 export default function TrackOrderScreen() {
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const { user } = AuthDataContext();
 
@@ -110,6 +112,7 @@ export default function TrackOrderScreen() {
       console.log("useFocusEffect");
 
       const onScreenFocus = async () => {
+        setLoading(true);
         try {
           setRefreshing(true);
           await fetchOrders();
@@ -118,13 +121,13 @@ export default function TrackOrderScreen() {
           console.error("Error refreshing data:", error);
           setRefreshing(false);
         }
+        setLoading(false);
       };
 
-      onScreenFocus(); // Вызываем функцию при фокусе на экране
+      onScreenFocus(); 
 
-      // Очистка эффекта при размонтировании компонента или снятии фокуса
       return () => {
-        // Здесь можно выполнить какие-либо очисточные действия, если это необходимо
+        //reset smth
       };
     }, [])
   );
@@ -246,7 +249,6 @@ export default function TrackOrderScreen() {
               </Text>
             </TouchableOpacity>
           </View>
-         
         </View>
       </View>
     );
@@ -260,26 +262,29 @@ export default function TrackOrderScreen() {
         <Text className="text-xl font-bold text-black">Track your order</Text>
         <BasketIcon />
       </View>
-
-      <FlatList
-        data={orders}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            colors={["#007AFF"]} // Цвета индикатора обновления
-          />
-        }
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <TrackOrderItem item={item} />}
-        ListEmptyComponent={
-          <View className="flex-1 items-center justify-center mt-10">
-            <Text className="text-center text-2xl font-bold">
-              You don't have any active orders.
-            </Text>
-          </View>
-        }
-      />
+      {loading ? (
+        <ActivityIndicator color="black" size="large" />
+      ) : (
+        <FlatList
+          data={orders}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={["#007AFF"]} // Цвета индикатора обновления
+            />
+          }
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <TrackOrderItem item={item} />}
+          ListEmptyComponent={
+            <View className="flex-1 items-center justify-center mt-10">
+              <Text className="text-center text-2xl font-bold">
+                You don't have any active orders.
+              </Text>
+            </View>
+          }
+        />
+      )}
     </SafeAreaView>
   );
 }

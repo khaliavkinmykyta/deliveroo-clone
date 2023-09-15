@@ -1,14 +1,11 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import React, { useState } from "react";
-import { ChevronLeftIcon } from "react-native-heroicons/outline";
 import BasketIcon from "../../../components/Basket/BasketIcon";
 import BackButton from "../../../components/BackButton";
-import { auth, db } from "../../../firebase";
-import { EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
+import { db } from "../../../firebase";
 import { useForm, Controller } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useNavigation } from "@react-navigation/native";
 import { TextInput } from "react-native";
 import {
   collection,
@@ -21,16 +18,14 @@ import { AuthDataContext } from "../../../hooks/AuthWrapper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const MobileScreen = () => {
-  const navigation = useNavigation();
   const { user, updateUser } = AuthDataContext();
   const [added, setAdded] = useState(false);
   const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   //SCHEMAS
   const currentMobileSchema = yup.object().shape({
-    mobileNumber: yup
-      .string()
-      .required("Mobile number is required"),
+    mobileNumber: yup.string().required("Mobile number is required"),
   });
 
   //FORM SETTING
@@ -42,14 +37,13 @@ const MobileScreen = () => {
   } = useForm({
     resolver: yupResolver(currentMobileSchema),
     defaultValues: {
-      mobileNumber: "",
+      mobileNumber: user.mobile || "+48",
     },
   });
+
   const onSubmit = async (data) => {
+    setLoading(true);
     try {
-      console.log("allo");
-      console.log(data.mobileNumber);
-      console.log(user.uid);
       const collectionRef = collection(db, "clients");
       const querySnapshot = await getDocs(
         query(collectionRef, where("id", "==", user.uid))
@@ -67,34 +61,32 @@ const MobileScreen = () => {
         setError(false);
 
         setAdded(true);
-        console.log("Обновление успешно выполнено");
       } else {
         setError(true);
         setAdded(false);
-
-        console.log("Документ не найден");
       }
     } catch (error) {
       setError(true);
       setAdded(false);
 
-      console.log("Ошибка при получении или обновлении документа:", error);
+      console.log("Error doc:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 px-4 py-2 bg-white">
       {/* HEADER */}
-      <View className="bg-white flex-row justify-between items-center px-2">
+      <View className="bg-white flex-row justify-between items-center">
         {/* Drawer Icon */}
         <BackButton />
-
         <Text className="text-xl font-bold text-black">Change mobile</Text>
         <BasketIcon />
       </View>
 
       {/* INPUT ORIGINAL PASS */}
-      <View className="mx-4 my-4">
+      <View className="my-5">
         {/* PASSWORD  CONTROLLER */}
         <Controller
           control={control}
@@ -123,14 +115,19 @@ const MobileScreen = () => {
         />
 
         {/* SUBMIT ORIGINAL PASSWORD */}
-        <TouchableOpacity className="bg-[#fe6c44] text-white p-4 rounded-xl"  onPress={handleSubmit(onSubmit)}>
-          <Text
-            className="text-white font-bold text-lg text-center"
-           
-          >
+        <TouchableOpacity
+          className="bg-[#fe6c44] text-white p-4 rounded-xl"
+          onPress={handleSubmit(onSubmit)}
+        >
+          <Text className="text-white font-bold text-lg text-center">
             ENTER YOUR NEW MOBILE
           </Text>
         </TouchableOpacity>
+        {loading ? (
+          <ActivityIndicator className="my-5" color="black" size="large" />
+        ) : (
+          ""
+        )}
         {added ? (
           <View className="border border-[#fe6c44] rounded-xl mt-2">
             <Text className="text-center text-2xl p-2 text-[#fe6c44]">

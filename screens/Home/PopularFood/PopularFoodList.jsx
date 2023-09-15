@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
-import { getDocs, limit, query } from "firebase/firestore";
+import { getDocs, limit, onSnapshot, query } from "firebase/firestore";
 import { db } from "../../../firebase";
 import { collection } from "firebase/firestore";
 import PopularFoodItem from "./PopularFoodItem";
@@ -17,20 +17,34 @@ const PopularFoodList = () => {
   };
 
   const fetchPopularFood = useCallback(async () => {
+    console.log("fetchPopularFood promotion list");
+
     try {
       const popularFoodRef = collection(db, "popularFoodItem");
       const q = query(popularFoodRef, limit(5));
-      const querySnapshot = await getDocs(q);
+      // Используем onSnapshot для подписки на изменения
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const popularFoodData = querySnapshot.docs.map((doc) => doc.data());
+        setPopularFoodItems(popularFoodData);
+      });
 
-      const popularFoodData = querySnapshot.docs.map((doc) => doc.data());
-      setPopularFoodItems(popularFoodData);
+      return unsubscribe; // Возвращаем функцию отписки
     } catch (error) {
-      console.error("Error fetching popular food items:", error);
+      console.error("Error fetching promo food items:", error);
     }
   }, []);
 
+  
+
   useEffect(() => {
-    fetchPopularFood();
+    "UE popular list";
+
+    let unsubscribe = fetchPopularFood();
+    return () => {
+      if (unsubscribe && typeof unsubscribe === "function") {
+        unsubscribe();
+      }
+    };
   }, [fetchPopularFood]);
 
   return (

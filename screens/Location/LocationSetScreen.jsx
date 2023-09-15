@@ -31,6 +31,8 @@ import BackButton from "../../components/BackButton";
 import * as geolib from "geolib";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {GOOGLE_API_KEY} from '@env';
+import * as Location from "expo-location";
+
 
 // const GOOGlE_API_KEY = process.env.GOOGLE_API_KEY;
 const LocationSetScreen = () => {
@@ -48,6 +50,19 @@ const LocationSetScreen = () => {
 
   // GET STORE GEO DATA
   useEffect(() => {
+    // const getPermission = async () => {
+    //   let { status } = await Location.requestForegroundPermissionsAsync();
+    //   if (status !== "granted") {
+    //     alert.log("Please grant the permissions!");
+
+    //     return;
+    //   }
+    //   let currentLocation = await Location.getCurrentPositionAsync({});
+    //   setLocation(currentLocation);
+    //   console.log('Current location: ');
+    //   console.log(currentLocation)
+    // };
+    // getPermission();
     const docRef = doc(db, "store", "storeInfo");
     getDoc(docRef)
       .then((docSnap) => {
@@ -184,15 +199,15 @@ const LocationSetScreen = () => {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <SafeAreaView style={{ flex: 1 }} className="bg-white">
+      <SafeAreaView style={{ flex: 1 }} className="bg-white px-4 py-2">
         {/* HEADER */}
-        <View className="bg-white flex-row justify-between items-center px-2 mb-2">
+        <View className="bg-white flex-row justify-between items-center mb-2">
           {/* Back Icon */}
           <BackButton />
           <Text className="text-xl font-bold text-black">Your location</Text>
           <BasketIcon />
         </View>
-        <View className="mx-4">
+        <View className="">
           <View
             className="relative"
             style={{ zIndex: 2, height: 44, marginVertical: 5 }}
